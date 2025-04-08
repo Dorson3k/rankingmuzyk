@@ -2,11 +2,19 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <title>Ranking Muzyk</title>
+  <title>🎶 Ranking Muzyk</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script>
+    // Skrypt do zmiany tytułu co 5 sekund
+    let isFirstTitle = true;
+    setInterval(() => {
+      document.title = isFirstTitle ? "🔧 | Made By Dorson" : "🎶 | Ranking Muzyk";
+      isFirstTitle = !isFirstTitle;
+    }, 5000); // 5000 milisekund = 5 sekund
+  </script>
   <style>
     body {
-      background-color: #0a0a0a; /* Czarny */
+      background-color: #0a0a0a;
       color: white;
       font-family: 'Poppins', sans-serif;
       margin: 0;
@@ -36,7 +44,7 @@
       padding: 1rem;
       border: 2px dashed #444;
       border-radius: 10px;
-      background-color: #111; /* Ciemniejszy czarny */
+      background-color: #111;
       transition: box-shadow 0.3s ease, transform 0.2s ease;
     }
     .column.drag-over {
@@ -47,19 +55,19 @@
       to { transform: scale(1.02); }
     }
     .column[data-score="10"] {
-      border-color: #00ff40; /* Żółty */
+      border-color: #2bff00;
       box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
     }
     .column[data-score="5"] {
-      border-color: #fffb00; /* Siwy */
+      border-color: #fffb00;
       box-shadow: 0 0 10px rgba(136, 136, 136, 0.3);
     }
     .column[data-score="0"] {
-      border-color: #ff0000; /* Ciemniejszy siwy */
+      border-color: #ff0000;
       box-shadow: 0 0 10px rgba(68, 68, 68, 0.3);
     }
     .song {
-      background-color: #222; /* Ciemny czarny */
+      background-color: #222;
       margin: 0.5rem 0;
       padding: 0.5rem;
       border-radius: 5px;
@@ -67,6 +75,9 @@
       transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
       opacity: 0;
       animation: fadeIn 0.5s ease forwards;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -75,7 +86,7 @@
     .song:hover {
       background-color: #333;
       transform: scale(1.02);
-      box-shadow: 0 2px 10px rgba(255, 255, 0, 0.2); /* Żółty cień */
+      box-shadow: 0 2px 10px rgba(255, 255, 0, 0.2);
     }
     .song:active {
       transform: scale(0.98);
@@ -92,13 +103,13 @@
       color: #fff;
       text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
     }
-    a {
-      color: #ffff00; /* Żółty */
-      text-decoration: none;
+    .play-btn {
+      color: #ffff00;
+      cursor: pointer;
       transition: color 0.2s ease;
     }
-    a:hover {
-      color: #888; /* Siwy */
+    .play-btn:hover {
+      color: #888;
     }
     #introScreen {
       position: fixed;
@@ -107,7 +118,7 @@
       z-index: 9999;
       width: 100vw;
       height: 100vh;
-      background: linear-gradient(45deg, #0a0a0a, #1a1a1a, #0a0a0a); /* Czarny gradient */
+      background: linear-gradient(45deg, #0a0a0a, #1a1a1a, #0a0a0a);
       background-size: 200% 200%;
       animation: gradientShift 15s ease infinite;
       display: flex;
@@ -124,7 +135,7 @@
       max-width: 80vw;
       height: auto;
       border-radius: 10px;
-      box-shadow: 0 0 30px rgba(255, 255, 0, 0.3); /* Żółty cień */
+      box-shadow: 0 0 30px rgba(255, 255, 0, 0.3);
     }
     #introScreen button {
       margin-top: 20px;
@@ -143,7 +154,7 @@
     #downloadBtn, #resetBtn, #themeToggle, #quoteBtn {
       padding: 1rem 2rem;
       font-size: 1rem;
-      background: linear-gradient(45deg, #ffff00, #888); /* Żółty do siwego */
+      background: linear-gradient(45deg, #ffff00, #888);
       color: #000;
       border: none;
       border-radius: 10px;
@@ -153,9 +164,9 @@
       transition: transform 0.2s ease, box-shadow 0.3s ease;
       position: relative;
     }
-    #download کدامBtn:hover, #resetBtn:hover, #themeToggle:hover, #quoteBtn:hover {
+    #downloadBtn:hover, #resetBtn:hover, #themeToggle:hover, #quoteBtn:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 15px rgba(255, 255, 0, 0.5); /* Żółty cień */
+      box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
     }
     #downloadBtn:active, #resetBtn:active, #themeToggle:active, #quoteBtn:active {
       transform: scale(0.95);
@@ -172,7 +183,7 @@
     }
     #addSongBtn {
       padding: 0.5rem 1rem;
-      background: #ffff00; /* Żółty */
+      background: #ffff00;
       color: #000;
       border: none;
       border-radius: 5px;
@@ -183,17 +194,17 @@
     #stats {
       text-align: center;
       padding: 1rem;
-      color: #888; /* Siwy */
+      color: #888;
     }
     #timer {
       text-align: center;
       padding: 0.5rem;
-      color: #ffff00; /* Żółty */
+      color: #ffff00;
     }
     #progressBar {
       width: 0%;
       height: 5px;
-      background: linear-gradient(45deg, #ffff00, #888); /* Żółty do siwego */
+      background: linear-gradient(45deg, #ffff00, #888);
       border-radius: 5px;
       margin: 0.5rem auto;
       animation: loadProgress 2s ease forwards;
@@ -206,7 +217,7 @@
       display: block;
       text-align: center;
       padding: 1rem;
-      color: #888; /* Siwy */
+      color: #888;
     }
     .light-mode {
       background-color: #f0f0f0;
@@ -224,11 +235,11 @@
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: #ffff00; /* Żółty */
+      background: #ffff00;
       color: #000;
       padding: 10px 20px;
       border-radius: 5px;
-      box-shadow: 0 0 10px rgba(255, 255, 0, 0.5); /* Żółty cień */
+      box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
       opacity: 0;
       transition: opacity 0.5s ease;
     }
@@ -239,11 +250,11 @@
       position: fixed;
       top: 20px;
       left: 20px;
-      background: linear-gradient(45deg, #ffff00, #888); /* Żółty do siwego */
+      background: linear-gradient(45deg, #ff0000, #850000);
       color: #000;
       padding: 10px 40px 10px 20px;
       border-radius: 15px;
-      box-shadow: 0 0 15px rgba(255, 255, 0, 0.5); /* Żółty cień */
+      box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
       font-size: 0.9rem;
       opacity: 0;
       transform: translateY(-20px);
@@ -278,19 +289,48 @@
       left: 50%;
       transform: translateX(-50%);
       background: #222;
-      color: #ffff00; /* Żółty */
+      color: #ffff00;
       padding: 10px;
       border-radius: 5px;
       font-size: 0.9rem;
       opacity: 0;
       pointer-events: none;
-      box-shadow: 0 0 10px rgba(255, 255, 0, 0.5); /* Żółty cień */
+      box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
       transition: opacity 0.3s ease, transform 0.3s ease;
       transform: translateX(-50%) translateY(10px);
     }
     #quoteBtn:hover #quoteTooltip {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+    #playerContainer {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
+      display: none;
+      z-index: 1000;
+    }
+    #playerContainer iframe {
+      border: none;
+      border-radius: 5px;
+    }
+    #playerContainer .close-player {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      color: #ffff00;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    #playerContainer .close-player:hover {
+      color: #888;
     }
     @media (max-width: 768px) {
       .container {
@@ -309,6 +349,24 @@
         font-size: 0.8rem;
         padding: 8px 30px 8px 15px;
       }
+      #playerContainer iframe {
+        width: 100%;
+        height: 200px;
+      }
+    }
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+      padding: 10px;
+      background: #0a0a0a;
+      color: #888;
+      font-size: 0.9rem;
+    }
+    .light-mode footer {
+      background: #f0f0f0;
+      color: #000;
     }
   </style>
 </head>
@@ -322,7 +380,7 @@
 
   <div id="mainContent" style="display: none;">
     <div id="alertBox">
-      08.04 23:30 - Nowe Utwory. Zaaktualizowany styl strony, nowe animacje
+      Jeśli odtwarzacz nie działa prawidłowo kliknij Obejrzyj w YouTube. Pracujemy nad tym!
       <span class="close-btn" onclick="closeAlert()">X</span>
     </div>
     <div id="progressBar"></div>
@@ -361,7 +419,12 @@
     </div>
 
     <div id="notification"></div>
+    <div id="playerContainer">
+      <span class="close-player" onclick="closePlayer()">X</span>
+    </div>
   </div>
+
+  <footer>© Copyright Dorian.S</footer>
 
   <audio id="dropSound" src="drop.mp3"></audio>
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -372,11 +435,11 @@
     particlesJS("particles-js", {
       "particles": {
         "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
-        "color": { "value": "#ffff00" }, /* Żółty */
+        "color": { "value": "#ffff00" },
         "shape": { "type": "circle" },
         "opacity": { "value": 0.5, "random": true },
         "size": { "value": 3, "random": true },
-        "line_linked": { "enable": true, "distance": 150, "color": "#888", "opacity": 0.4, "width": 1 }, /* Siwy */
+        "line_linked": { "enable": true, "distance": 150, "color": "#888", "opacity": 0.4, "width": 1 },
         "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false, "out_mode": "out" }
       },
       "interactivity": {
@@ -402,7 +465,7 @@
     document.getElementById("introVideo").addEventListener("ended", skipIntro);
     setTimeout(() => {
       if (document.getElementById('introScreen').style.display !== 'none') skipIntro();
-    }, 5000);
+    }, 50000);
 
     function closeAlert() {
       const alertBox = document.getElementById('alertBox');
@@ -433,54 +496,38 @@
     }
 
     const songs = [
-      "Dom Nad Wodą – Pezet, Auer",
-      "DOLCE VITA – Kizo, Bletka, Szpaku, Leśny",
-      "DOMEK W GÓRACH – Wrzecion, Ola Kędra",
-      "Sophia Loren – Tymek, Urbanski",
-      "Pardon – Louis Villain, Budda",
-      "Plaster – Szpaku, Deemz",
-      "Multisport – Kaz Bałagane, Oskar83",
-      "PARĘ CHWIL – Wrzecion",
-      "Nicea – PRO8L3M",
-      "Bez Strachu – Paluch",
-      "Ground Zero – PRO8L3M",
-      "Wszyscy w Gucci – Hellfield, Skolim, CrackHouse",
-      "Na Szczycie – Grubson",
-      "Billy Kid – ReTo, Kubi Producent",
-      "Żyć aż do bólu – Chada",
-      "Blask – ReTo",
-      "Adrenalina – NinoOficjalnie",
-      "5 INFLUENCEREK – Zeamsone",
-      "Only You - Extended Version – Savage",
-      "Język Ciała – Tymek, Big Scythe",
-      "FALA – Guzior, Oskar83",
-      "Pijemy Za Lepszy Czas – Smolasty, 730 Huncho, Nearr",
-      "Nie potrzeba mi nic więcej – Hinol Polska Wersja",
-      "Znikam – Gibbs, DOPEHOUSE",
-      "Impreza – Sobel",
-      "Apollo – Avi, Louis Villain, Sarius",
-      "STRZELAM PETEM – Guzior",
-      "1 Moment feat. Buka – K2, Buka",
-      "WIĘŹ – Szpaku, VAE VISTIC, Kubi Producent",
-      "La Manga – Alberto, Josef Bratan, Sir Mich",
-      "SOBOTA WIECZÓR – Young Leosia, Jacuś",
-      "Molly – PRO8L3M",
-      "Cherry Lady – Louis Villain",
-      "Młoda krew"
+      { title: "DOMEK W GÓRACH – Wrzecion, Ola Kędra", videoId: "yxEuNBZ4pwM" },
+      { title: "Sophia Loren – Tymek, Urbanski", videoId: "O-PjYv8Vgc0" },
+      { title: "Pardon – Louis Villain, Budda", videoId: "gvW0meiDG-0" },
+      { title: "Multisport – Kaz Bałagane, Oskar83", videoId: "gDcNzblrePw" },
+      { title: "PARĘ CHWIL – Wrzecion", videoId: "zgBUk2eObUE" },
+      { title: "Nicea – PRO8L3M", videoId: "846ml4oPRiU" },
+      { title: "Bez Strachu – Paluch", videoId: "4pu-lKgm-dg" },
+      { title: "Wszyscy w Gucci – Hellfield, Skolim, CrackHouse", videoId: "AhNQMjtrHgM" },
+      { title: "Na Szczycie – Grubson", videoId: "6BnT_wkuMBA" },
+      { title: "Żyć aż do bólu – Chada", videoId: "s35kfWoHDhM" },
+      { title: "Adrenalina – NinoOficjalnie", videoId: "1wRuUOxUBts" },
+      { title: "5 INFLUENCEREK – Zeamsone", videoId: "OEPI8I-Zjz4" },
+      { title: "Język Ciała – Tymek, Big Scythe", videoId: "pImrABc4s58" },
+      { title: "FALA – Guzior, Oskar83", videoId: "H30R1BUpRF8" },
+      { title: "Pijemy Za Lepszy Czas – Smolasty, 730 Huncho, Nearr", videoId: "Hr8oqVHxYog" },
+      { title: "Nie potrzeba mi nic więcej – Hinol Polska Wersja", videoId: "meH-Ypryf0E" },
+      { title: "Znikam – Gibbs, DOPEHOUSE", videoId: "alKMn0Yw9xk" },
+      { title: "Impreza – Sobel", videoId: "Sug433bP-mw" },
     ];
 
     const songList = document.getElementById("songList");
 
-    function createSongElement(title, index) {
+    function createSongElement(title, index, videoId = null) {
       const div = document.createElement("div");
       div.className = "song";
       div.draggable = true;
       div.textContent = title;
-      const link = document.createElement("a");
-      link.href = `https://www.youtube.com/results?search_query=${encodeURIComponent(title)}`;
-      link.target = "_blank";
-      link.textContent = " ▶";
-      div.appendChild(link);
+      const playBtn = document.createElement("span");
+      playBtn.className = "play-btn";
+      playBtn.textContent = " ▶";
+      playBtn.onclick = () => playSong(title, videoId);
+      div.appendChild(playBtn);
       div.style.animationDelay = `${index * 0.05}s`;
       div.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", title);
@@ -489,8 +536,8 @@
       return div;
     }
 
-    songs.forEach((title, index) => {
-      songList.appendChild(createSongElement(title, index));
+    songs.forEach((song, index) => {
+      songList.appendChild(createSongElement(song.title, index, song.videoId));
     });
 
     document.querySelectorAll(".column").forEach(col => {
@@ -517,6 +564,29 @@
       });
     });
 
+    function playSong(title, videoId) {
+      const playerContainer = document.getElementById("playerContainer");
+      playerContainer.innerHTML = '<span class="close-player" onclick="closePlayer()">X</span>';
+      
+      const embedUrl = videoId 
+        ? `https://www.youtube.com/embed/${videoId}?autoplay=1`
+        : `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(title)}&autoplay=1`;
+      
+      const iframe = document.createElement("iframe");
+      iframe.width = "560";
+      iframe.height = "315";
+      iframe.src = embedUrl;
+      iframe.allow = "autoplay; encrypted-media";
+      playerContainer.appendChild(iframe);
+      playerContainer.style.display = "block";
+    }
+
+    function closePlayer() {
+      const playerContainer = document.getElementById("playerContainer");
+      playerContainer.style.display = "none";
+      playerContainer.innerHTML = '<span class="close-player" onclick="closePlayer()">X</span>';
+    }
+
     function addSong() {
       const input = document.getElementById("newSong");
       const title = input.value.trim();
@@ -528,7 +598,7 @@
           particleCount: 100,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ['#ffff00', '#888', '#0a0a0a'] /* Żółty, siwy, czarny */
+          colors: ['#ffff00', '#888', '#0a0a0a']
         });
       }
     }
