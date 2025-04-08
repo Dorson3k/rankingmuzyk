@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Ranking Muzyk</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0a0a0a;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      display: flex;
+      justify-content: space-between;
+      padding: 2rem;
+      flex-wrap: nowrap;
+    }
+    .songs, .column {
+      flex: 1;
+      min-width: 250px;
+      max-width: 30%;
+      margin: 0 1rem;
+      padding: 1rem;
+      border: 2px dashed #444;
+      border-radius: 10px;
+      background-color: #111;
+      transition: box-shadow 0.3s ease;
+    }
+    .column[data-score="10"] {
+      border-color: #00ff00;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    }
+    .column[data-score="5"] {
+      border-color: #ffff00;
+      box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
+    }
+    .column[data-score="0"] {
+      border-color: #ff3399;
+      box-shadow: 0 0 10px rgba(255, 51, 153, 0.3);
+    }
+    .song {
+      background-color: #222;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border-radius: 5px;
+      cursor: grab;
+      transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .song:hover {
+      background-color: #333;
+      transform: scale(1.02);
+      box-shadow: 0 2px 10px rgba(0, 255, 255, 0.2);
+    }
+    .song:active {
+      transform: scale(0.98);
+    }
+    h2 {
+      text-align: center;
+      color: #fff;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+    a {
+      color: #0ff;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    a:hover {
+      color: #ff3399;
+    }
+
+    /* Intro film */
+    #introScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(45deg, #0a0a0a, #1a1a3a, #0a0a0a);
+      background-size: 200% 200%;
+      animation: gradientShift 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    #introScreen video {
+      max-width: 80vw;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+    }
+    #introScreen button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #222;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+    #introScreen button:hover {
+      background: #333;
+      transform: scale(1.1);
+    }
+
+    /* POBIERZ */
+    #downloadBtn {
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      background: linear-gradient(45deg, #0ff, #ff3399);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 2rem auto;
+      display: block;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    #downloadBtn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    }
+    #downloadBtn:active {
+      transform: scale(0.95);
+    }
+
+    /* Stopka */
+    h7 {
+      display: block;
+      text-align: center;
+      padding: 1rem;
+      color: #888;
+    }
+
+    /* Responsywność */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        padding: 1rem;
+      }
+      .songs, .column {
+        max-width: 100%;
+        margin: 0.5rem 0;
+      }
+      #downloadBtn {
+        width: 80%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- EKRAN STARTOWY Z FILMEM -->
+  <div id="introScreen">
+    <video id="introVideo" src="wstep.mp4" autoplay controls playsinline></video>
+    <button onclick="skipIntro()">Pomiń film</button>
+  </div>
+
+  <!-- ZAWARTOŚĆ STRONY -->
+  <div id="mainContent" style="display: none;">
+    <div class="container">
+      <div class="songs" id="songList">
+        <h2>🎵 Lista Utworów</h2>
+      </div>
+
+      <div class="column" data-score="10">
+        <h2>10/10</h2>
+      </div>
+      <div class="column" data-score="5">
+        <h2>5/10</h2>
+      </div>
+      <div class="column" data-score="0">
+        <h2>0/10</h2>
+      </div>
+    </div>
+
+    <!-- PRZYCISK POBIERZ -->
+    <button id="downloadBtn" onclick="downloadScreenshot()">📥 POBIERZ</button>
+  </div>
+
+  <div>
+    <h7>Nowe muzyki planowane na stronie - 10.04.2025</h7>
+  </div>
+
+  <!-- BIBLIOTEKA DO SCREENA -->
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+  <script>
+    // Funkcja: pomiń film
+    function skipIntro() {
+      const introScreen = document.getElementById('introScreen');
+      const mainContent = document.getElementById('mainContent');
+      
+      introScreen.style.opacity = '0'; // Fade out intro
+      setTimeout(() => {
+        introScreen.style.display = 'none'; // Usuwamy całkowicie po animacji
+        mainContent.style.display = 'block'; // Pokazujemy główną zawartość
+        mainContent.style.opacity = '0'; // Start fade-in
+        mainContent.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => {
+          mainContent.style.opacity = '1'; // Fade-in
+        }, 10);
+      }, 300); // Czekamy na zakończenie fade-out
+    }
+
+    // Auto-skip po zakończeniu filmu
+    document.getElementById("introVideo").addEventListener("ended", skipIntro);
+
+    // Jeśli wideo się nie załaduje, pomiń intro po 5 sekundach (zapasowy mechanizm)
+    setTimeout(() => {
+      if (document.getElementById('introScreen').style.display !== 'none') {
+        skipIntro();
+      }
+    }, 5000);
+
+    // Screenshot rankingów
+    function downloadScreenshot() {
+      html2canvas(document.querySelector(".container")).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "ranking.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+
+    // Lista piosenek
+    const songs = [
+      "Dom Nad Wodą – Pezet, Auer",
+      "DOLCE VITA – Kizo, Bletka, Szpaku, Leśny",
+      "DOMEK W GÓRACH – Wrzecion, Ola Kędra",
+      "Sophia Loren – Tymek, Urbanski",
+      "Pardon – Louis Villain, Budda",
+      "Plaster – Szpaku, Deemz",
+      "Multisport – Kaz Bałagane, Oskar83",
+      "PARĘ CHWIL – Wrzecion",
+      "Nicea – PRO8L3M",
+      "Bez Strachu – Paluch",
+      "Ground Zero – PRO8L3M",
+      "Wszyscy w Gucci – Hellfield, Skolim, CrackHouse",
+      "Na Szczycie – Grubson",
+      "Billy Kid – ReTo, Kubi Producent",
+      "Żyć aż do bólu – Chada",
+      "Blask – ReTo",
+      "Adrenalina – NinoOficjalnie",
+      "5 INFLUENCEREK – Zeamsone",
+      "Only You - Extended Version – Savage",
+      "Język Ciała – Tymek, Big Scythe",
+      "FALA – Guzior, Oskar83",
+      "Pijemy Za Lepszy Czas – Smolasty, 730 Huncho, Nearr",
+      "Nie potrzeba mi nic więcej – Hinol Polska Wersja",
+      "Znikam – Gibbs, DOPEHOUSE",
+      "Impreza – Sobel",
+      "Apollo – Avi, Louis Villain, Sarius",
+      "STRZELAM PETEM – Guzior",
+      "1 Moment feat. Buka – K2, Buka",
+      "WIĘŹ – Szpaku, VAE VISTIC, Kubi Producent",
+      "La Manga – Alberto, Josef Bratan, Sir Mich",
+      "SOBOTA WIECZÓR – Young Leosia, Jacuś",
+      "Molly – PRO8L3M",
+      "Cherry Lady – Louis Villain",
+      "Młoda krew"
+    ];
+
+    const songList = document.getElementById("songList");
+
+    songs.forEach(title => {
+      const div = document.createElement("div");
+      div.className = "song";
+      div.draggable = true;
+      div.textContent = title;
+
+      const link = document.createElement("a");
+      link.href = `https://www.youtube.com/results?search_query=${encodeURIComponent(title)}`;
+      link.target = "_blank";
+      link.textContent = " ▶";
+
+      div.appendChild(link);
+      songList.appendChild(div);
+
+      div.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", title);
+        e.dataTransfer.effectAllowed = "move";
+      });
+    });
+
+    document.querySelectorAll(".column").forEach(col => {
+      col.addEventListener("dragover", e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+      });
+
+      col.addEventListener("drop", e => {
+        e.preventDefault();
+        const title = e.dataTransfer.getData("text/plain");
+        const songDiv = [...songList.children].find(d => d.textContent.includes(title));
+        if (songDiv) col.appendChild(songDiv);
+      });
+    });
+  </script>
+
+</body>
+</html>
