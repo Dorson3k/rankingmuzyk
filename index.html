@@ -6,11 +6,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: #0a0a0a;
+      background-color: #0a0a0a; /* Czarny */
       color: white;
       font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      overflow-x: hidden;
+    }
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
     }
     .container {
       display: flex;
@@ -26,36 +36,56 @@
       padding: 1rem;
       border: 2px dashed #444;
       border-radius: 10px;
-      background-color: #111;
-      transition: box-shadow 0.3s ease;
+      background-color: #111; /* Ciemniejszy czarny */
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    .column.drag-over {
+      animation: pulse 0.5s infinite alternate;
+    }
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.02); }
     }
     .column[data-score="10"] {
-      border-color: #00ff00;
-      box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
-    }
-    .column[data-score="5"] {
-      border-color: #ffff00;
+      border-color: #00ff40; /* Żółty */
       box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
     }
+    .column[data-score="5"] {
+      border-color: #fffb00; /* Siwy */
+      box-shadow: 0 0 10px rgba(136, 136, 136, 0.3);
+    }
     .column[data-score="0"] {
-      border-color: #ff3399;
-      box-shadow: 0 0 10px rgba(255, 51, 153, 0.3);
+      border-color: #ff0000; /* Ciemniejszy siwy */
+      box-shadow: 0 0 10px rgba(68, 68, 68, 0.3);
     }
     .song {
-      background-color: #222;
+      background-color: #222; /* Ciemny czarny */
       margin: 0.5rem 0;
       padding: 0.5rem;
       border-radius: 5px;
       cursor: grab;
       transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .song:hover {
       background-color: #333;
       transform: scale(1.02);
-      box-shadow: 0 2px 10px rgba(0, 255, 255, 0.2);
+      box-shadow: 0 2px 10px rgba(255, 255, 0, 0.2); /* Żółty cień */
     }
     .song:active {
       transform: scale(0.98);
+    }
+    .song.dropped {
+      animation: dropEffect 0.3s ease;
+    }
+    @keyframes dropEffect {
+      0% { transform: scale(1.1); }
+      100% { transform: scale(1); }
     }
     h2 {
       text-align: center;
@@ -63,15 +93,13 @@
       text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
     }
     a {
-      color: #0ff;
+      color: #ffff00; /* Żółty */
       text-decoration: none;
       transition: color 0.2s ease;
     }
     a:hover {
-      color: #ff3399;
+      color: #888; /* Siwy */
     }
-
-    /* Intro film */
     #introScreen {
       position: fixed;
       top: 0;
@@ -79,7 +107,7 @@
       z-index: 9999;
       width: 100vw;
       height: 100vh;
-      background: linear-gradient(45deg, #0a0a0a, #1a1a3a, #0a0a0a);
+      background: linear-gradient(45deg, #0a0a0a, #1a1a1a, #0a0a0a); /* Czarny gradient */
       background-size: 200% 200%;
       animation: gradientShift 15s ease infinite;
       display: flex;
@@ -96,7 +124,7 @@
       max-width: 80vw;
       height: auto;
       border-radius: 10px;
-      box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+      box-shadow: 0 0 30px rgba(255, 255, 0, 0.3); /* Żółty cień */
     }
     #introScreen button {
       margin-top: 20px;
@@ -112,37 +140,158 @@
       background: #333;
       transform: scale(1.1);
     }
-
-    /* POBIERZ */
-    #downloadBtn {
+    #downloadBtn, #resetBtn, #themeToggle, #quoteBtn {
       padding: 1rem 2rem;
       font-size: 1rem;
-      background: linear-gradient(45deg, #0ff, #ff3399);
+      background: linear-gradient(45deg, #ffff00, #888); /* Żółty do siwego */
       color: #000;
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      margin: 2rem auto;
-      display: block;
+      margin: 1rem;
+      display: inline-block;
       transition: transform 0.2s ease, box-shadow 0.3s ease;
+      position: relative;
     }
-    #downloadBtn:hover {
+    #download کدامBtn:hover, #resetBtn:hover, #themeToggle:hover, #quoteBtn:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+      box-shadow: 0 0 15px rgba(255, 255, 0, 0.5); /* Żółty cień */
     }
-    #downloadBtn:active {
+    #downloadBtn:active, #resetBtn:active, #themeToggle:active, #quoteBtn:active {
       transform: scale(0.95);
     }
-
-    /* Stopka */
+    #newSong {
+      width: 80%;
+      margin: 1rem auto;
+      padding: 0.5rem;
+      background: #222;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 5px;
+      display: block;
+    }
+    #addSongBtn {
+      padding: 0.5rem 1rem;
+      background: #ffff00; /* Żółty */
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0.5rem auto;
+      display: block;
+    }
+    #stats {
+      text-align: center;
+      padding: 1rem;
+      color: #888; /* Siwy */
+    }
+    #timer {
+      text-align: center;
+      padding: 0.5rem;
+      color: #ffff00; /* Żółty */
+    }
+    #progressBar {
+      width: 0%;
+      height: 5px;
+      background: linear-gradient(45deg, #ffff00, #888); /* Żółty do siwego */
+      border-radius: 5px;
+      margin: 0.5rem auto;
+      animation: loadProgress 2s ease forwards;
+    }
+    @keyframes loadProgress {
+      from { width: 0%; }
+      to { width: 80%; }
+    }
     h7 {
       display: block;
       text-align: center;
       padding: 1rem;
-      color: #888;
+      color: #888; /* Siwy */
     }
-
-    /* Responsywność */
+    .light-mode {
+      background-color: #f0f0f0;
+      color: #000;
+    }
+    .light-mode .songs, .light-mode .column {
+      background-color: #fff;
+      border-color: #ccc;
+    }
+    .light-mode .song {
+      background-color: #e0e0e0;
+    }
+    #notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffff00; /* Żółty */
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(255, 255, 0, 0.5); /* Żółty cień */
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    #notification.show {
+      opacity: 1;
+    }
+    #alertBox {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: linear-gradient(45deg, #ffff00, #888); /* Żółty do siwego */
+      color: #000;
+      padding: 10px 40px 10px 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(255, 255, 0, 0.5); /* Żółty cień */
+      font-size: 0.9rem;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: slideIn 0.5s ease forwards, pulseAlert 2s infinite alternate;
+      z-index: 1000;
+    }
+    #alertBox .close-btn {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: #000;
+      transition: color 0.2s ease;
+    }
+    #alertBox .close-btn:hover {
+      color: #fff;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulseAlert {
+      from { box-shadow: 0 0 15px rgba(255, 255, 0, 0.5); }
+      to { box-shadow: 0 0 25px rgba(255, 255, 0, 0.8); }
+    }
+    #quoteTooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #222;
+      color: #ffff00; /* Żółty */
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      opacity: 0;
+      pointer-events: none;
+      box-shadow: 0 0 10px rgba(255, 255, 0, 0.5); /* Żółty cień */
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      transform: translateX(-50%) translateY(10px);
+    }
+    #quoteBtn:hover #quoteTooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
     @media (max-width: 768px) {
       .container {
         flex-direction: column;
@@ -152,23 +301,32 @@
         max-width: 100%;
         margin: 0.5rem 0;
       }
-      #downloadBtn {
+      #downloadBtn, #resetBtn, #themeToggle, #quoteBtn {
         width: 80%;
         text-align: center;
+      }
+      #alertBox {
+        font-size: 0.8rem;
+        padding: 8px 30px 8px 15px;
       }
     }
   </style>
 </head>
 <body>
+  <div id="particles-js"></div>
 
-  <!-- EKRAN STARTOWY Z FILMEM -->
   <div id="introScreen">
     <video id="introVideo" src="wstep.mp4" autoplay controls playsinline></video>
     <button onclick="skipIntro()">Pomiń film</button>
   </div>
 
-  <!-- ZAWARTOŚĆ STRONY -->
   <div id="mainContent" style="display: none;">
+    <div id="alertBox">
+      08.04 23:30 - Nowe Utwory. Zaaktualizowany styl strony, nowe animacje
+      <span class="close-btn" onclick="closeAlert()">X</span>
+    </div>
+    <div id="progressBar"></div>
+
     <div class="container">
       <div class="songs" id="songList">
         <h2>🎵 Lista Utworów</h2>
@@ -185,46 +343,74 @@
       </div>
     </div>
 
-    <!-- PRZYCISK POBIERZ -->
     <button id="downloadBtn" onclick="downloadScreenshot()">📥 POBIERZ</button>
+    <button id="resetBtn" onclick="resetRanking()">🔄 RESET</button>
+    <button id="themeToggle" onclick="toggleTheme()">🌙 Tryb</button>
+    <button id="quoteBtn">🎶 Cytat
+      <div id="quoteTooltip"></div>
+    </button>
+
+    <div id="stats"></div>
+    <div id="timer">Czas na stronie: 0s</div>
+
+    <input type="text" id="newSong" placeholder="Dodaj własny utwór">
+    <button id="addSongBtn" onclick="addSong()">Dodaj</button>
+
+    <div>
+      <h7>Nowe muzyki planowane na stronie - 10.04.2025</h7>
+    </div>
+
+    <div id="notification"></div>
   </div>
 
-  <div>
-    <h7>Nowe muzyki planowane na stronie - 10.04.2025</h7>
-  </div>
-
-  <!-- BIBLIOTEKA DO SCREENA -->
+  <audio id="dropSound" src="drop.mp3"></audio>
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
-    // Funkcja: pomiń film
+    particlesJS("particles-js", {
+      "particles": {
+        "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+        "color": { "value": "#ffff00" }, /* Żółty */
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.5, "random": true },
+        "size": { "value": 3, "random": true },
+        "line_linked": { "enable": true, "distance": 150, "color": "#888", "opacity": 0.4, "width": 1 }, /* Siwy */
+        "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false, "out_mode": "out" }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": { "onhover": { "enable": true, "mode": "repulse" }, "onclick": { "enable": true, "mode": "push" } },
+        "modes": { "repulse": { "distance": 100, "duration": 0.4 }, "push": { "particles_nb": 4 } }
+      },
+      "retina_detect": true
+    });
+
     function skipIntro() {
       const introScreen = document.getElementById('introScreen');
       const mainContent = document.getElementById('mainContent');
-      
-      introScreen.style.opacity = '0'; // Fade out intro
+      introScreen.style.opacity = '0';
       setTimeout(() => {
-        introScreen.style.display = 'none'; // Usuwamy całkowicie po animacji
-        mainContent.style.display = 'block'; // Pokazujemy główną zawartość
-        mainContent.style.opacity = '0'; // Start fade-in
+        introScreen.style.display = 'none';
+        mainContent.style.display = 'block';
+        mainContent.style.opacity = '0';
         mainContent.style.transition = 'opacity 0.5s ease';
-        setTimeout(() => {
-          mainContent.style.opacity = '1'; // Fade-in
-        }, 10);
-      }, 300); // Czekamy na zakończenie fade-out
+        setTimeout(() => mainContent.style.opacity = '1', 10);
+      }, 300);
     }
-
-    // Auto-skip po zakończeniu filmu
     document.getElementById("introVideo").addEventListener("ended", skipIntro);
-
-    // Jeśli wideo się nie załaduje, pomiń intro po 5 sekundach (zapasowy mechanizm)
     setTimeout(() => {
-      if (document.getElementById('introScreen').style.display !== 'none') {
-        skipIntro();
-      }
+      if (document.getElementById('introScreen').style.display !== 'none') skipIntro();
     }, 5000);
 
-    // Screenshot rankingów
+    function closeAlert() {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.style.opacity = '0';
+      alertBox.style.transform = 'translateY(-20px)';
+      setTimeout(() => alertBox.style.display = 'none', 500);
+    }
+
     function downloadScreenshot() {
       html2canvas(document.querySelector(".container")).then(canvas => {
         const link = document.createElement("a");
@@ -234,7 +420,18 @@
       });
     }
 
-    // Lista piosenek
+    function resetRanking() {
+      const songList = document.getElementById("songList");
+      document.querySelectorAll(".column .song").forEach(song => {
+        songList.appendChild(song);
+      });
+      updateStats();
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("light-mode");
+    }
+
     const songs = [
       "Dom Nad Wodą – Pezet, Auer",
       "DOLCE VITA – Kizo, Bletka, Szpaku, Leśny",
@@ -274,40 +471,113 @@
 
     const songList = document.getElementById("songList");
 
-    songs.forEach(title => {
+    function createSongElement(title, index) {
       const div = document.createElement("div");
       div.className = "song";
       div.draggable = true;
       div.textContent = title;
-
       const link = document.createElement("a");
       link.href = `https://www.youtube.com/results?search_query=${encodeURIComponent(title)}`;
       link.target = "_blank";
       link.textContent = " ▶";
-
       div.appendChild(link);
-      songList.appendChild(div);
-
+      div.style.animationDelay = `${index * 0.05}s`;
       div.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", title);
         e.dataTransfer.effectAllowed = "move";
       });
+      return div;
+    }
+
+    songs.forEach((title, index) => {
+      songList.appendChild(createSongElement(title, index));
     });
 
     document.querySelectorAll(".column").forEach(col => {
       col.addEventListener("dragover", e => {
         e.preventDefault();
         e.dataTransfer.dropEffect = "move";
+        col.classList.add("drag-over");
       });
-
+      col.addEventListener("dragleave", () => {
+        col.classList.remove("drag-over");
+      });
       col.addEventListener("drop", e => {
         e.preventDefault();
         const title = e.dataTransfer.getData("text/plain");
-        const songDiv = [...songList.children].find(d => d.textContent.includes(title));
-        if (songDiv) col.appendChild(songDiv);
+        const songDiv = [...songList.children, ...document.querySelectorAll(".column .song")].find(d => d.textContent.includes(title));
+        if (songDiv) {
+          songDiv.classList.add("dropped");
+          col.appendChild(songDiv);
+          document.getElementById("dropSound").play();
+          updateStats();
+          col.classList.remove("drag-over");
+          setTimeout(() => songDiv.classList.remove("dropped"), 300);
+        }
       });
     });
-  </script>
 
+    function addSong() {
+      const input = document.getElementById("newSong");
+      const title = input.value.trim();
+      if (title) {
+        songList.appendChild(createSongElement(title, 0));
+        input.value = "";
+        showNotification(`Dodano utwór: ${title}`);
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#ffff00', '#888', '#0a0a0a'] /* Żółty, siwy, czarny */
+        });
+      }
+    }
+
+    function showNotification(message) {
+      const notification = document.getElementById("notification");
+      notification.textContent = message;
+      notification.classList.add("show");
+      setTimeout(() => {
+        notification.classList.remove("show");
+      }, 3000);
+    }
+
+    function updateStats() {
+      const stats = document.getElementById("stats");
+      stats.innerHTML = "";
+      document.querySelectorAll(".column").forEach(col => {
+        const count = col.querySelectorAll(".song").length;
+        stats.innerHTML += `<p>${col.querySelector("h2").textContent}: ${count} utworów</p>`;
+      });
+    }
+    setInterval(updateStats, 1000);
+
+    let timeSpent = 0;
+    setInterval(() => {
+      timeSpent++;
+      const minutes = Math.floor(timeSpent / 60);
+      const seconds = timeSpent % 60;
+      document.getElementById("timer").textContent = 
+        `Czas na stronie: ${minutes > 0 ? minutes + 'm ' : ''}${seconds}s`;
+    }, 1000);
+
+    const quotes = [
+      "Muzyka to uniwersalny język ludzkości. – H. W. Longfellow",
+      "Bez muzyki życie byłoby błędem. – Friedrich Nietzsche",
+      "Muzyka wyraża to, czego nie da się powiedzieć. – Victor Hugo",
+      "Tam, gdzie słowa zawodzą, przemawia muzyka. – Hans Christian Andersen",
+      "Muzyka jest oddechem duszy i sumienia. – Platon",
+      "Życie bez muzyki byłoby jak ciało bez duszy. – Cicero",
+      "Muzyka to magia, która łączy serca. – Anonim"
+    ];
+
+    const quoteBtn = document.getElementById("quoteBtn");
+    const quoteTooltip = document.getElementById("quoteTooltip");
+
+    quoteBtn.addEventListener("mouseover", () => {
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      quoteTooltip.textContent = randomQuote;
+    });
+  </script>
 </body>
 </html>
