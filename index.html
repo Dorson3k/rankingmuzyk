@@ -5,12 +5,11 @@
   <title>🎶 Ranking Muzyk</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script>
-    // Skrypt do zmiany tytułu co 5 sekund
     let isFirstTitle = true;
     setInterval(() => {
       document.title = isFirstTitle ? "🔧 | Made By Dorson" : "🎶 | Ranking Muzyk";
       isFirstTitle = !isFirstTitle;
-    }, 5000); // 5000 milisekund = 5 sekund
+    }, 5000);
   </script>
   <style>
     body {
@@ -54,18 +53,9 @@
       from { transform: scale(1); }
       to { transform: scale(1.02); }
     }
-    .column[data-score="10"] {
-      border-color: #2bff00;
-      box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
-    }
-    .column[data-score="5"] {
-      border-color: #fffb00;
-      box-shadow: 0 0 10px rgba(136, 136, 136, 0.3);
-    }
-    .column[data-score="0"] {
-      border-color: #ff0000;
-      box-shadow: 0 0 10px rgba(68, 68, 68, 0.3);
-    }
+    .column[data-score="10"] { border-color: #2bff00; box-shadow: 0 0 10px rgba(255, 255, 0, 0.3); }
+    .column[data-score="5"] { border-color: #fffb00; box-shadow: 0 0 10px rgba(136, 136, 136, 0.3); }
+    .column[data-score="0"] { border-color: #ff0000; box-shadow: 0 0 10px rgba(68, 68, 68, 0.3); }
     .song {
       background-color: #222;
       margin: 0.5rem 0;
@@ -88,12 +78,8 @@
       transform: scale(1.02);
       box-shadow: 0 2px 10px rgba(255, 255, 0, 0.2);
     }
-    .song:active {
-      transform: scale(0.98);
-    }
-    .song.dropped {
-      animation: dropEffect 0.3s ease;
-    }
+    .song:active { transform: scale(0.98); }
+    .song.dropped { animation: dropEffect 0.3s ease; }
     @keyframes dropEffect {
       0% { transform: scale(1.1); }
       100% { transform: scale(1); }
@@ -108,9 +94,7 @@
       cursor: pointer;
       transition: color 0.2s ease;
     }
-    .play-btn:hover {
-      color: #888;
-    }
+    .play-btn:hover { color: #888; }
     #introScreen {
       position: fixed;
       top: 0;
@@ -151,7 +135,7 @@
       background: #333;
       transform: scale(1.1);
     }
-    #downloadBtn, #resetBtn, #themeToggle, #quoteBtn {
+    #downloadBtn, #resetBtn, #themeToggle {
       padding: 1rem 2rem;
       font-size: 1rem;
       background: linear-gradient(45deg, #ffff00, #888);
@@ -162,73 +146,10 @@
       margin: 1rem;
       display: inline-block;
       transition: transform 0.2s ease, box-shadow 0.3s ease;
-      position: relative;
     }
-    #downloadBtn:hover, #resetBtn:hover, #themeToggle:hover, #quoteBtn:hover {
+    #downloadBtn:hover, #resetBtn:hover, #themeToggle:hover {
       transform: scale(1.05);
       box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
-    }
-    #downloadBtn:active, #resetBtn:active, #themeToggle:active, #quoteBtn:active {
-      transform: scale(0.95);
-    }
-    #newSong {
-      width: 80%;
-      margin: 1rem auto;
-      padding: 0.5rem;
-      background: #222;
-      color: white;
-      border: 1px solid #444;
-      border-radius: 5px;
-      display: block;
-    }
-    #addSongBtn {
-      padding: 0.5rem 1rem;
-      background: #ffff00;
-      color: #000;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin: 0.5rem auto;
-      display: block;
-    }
-    #stats {
-      text-align: center;
-      padding: 1rem;
-      color: #888;
-    }
-    #timer {
-      text-align: center;
-      padding: 0.5rem;
-      color: #ffff00;
-    }
-    #progressBar {
-      width: 0%;
-      height: 5px;
-      background: linear-gradient(45deg, #ffff00, #888);
-      border-radius: 5px;
-      margin: 0.5rem auto;
-      animation: loadProgress 2s ease forwards;
-    }
-    @keyframes loadProgress {
-      from { width: 0%; }
-      to { width: 80%; }
-    }
-    h7 {
-      display: block;
-      text-align: center;
-      padding: 1rem;
-      color: #888;
-    }
-    .light-mode {
-      background-color: #f0f0f0;
-      color: #000;
-    }
-    .light-mode .songs, .light-mode .column {
-      background-color: #fff;
-      border-color: #ccc;
-    }
-    .light-mode .song {
-      background-color: #e0e0e0;
     }
     #notification {
       position: fixed;
@@ -243,66 +164,7 @@
       opacity: 0;
       transition: opacity 0.5s ease;
     }
-    #notification.show {
-      opacity: 1;
-    }
-    #alertBox {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: linear-gradient(45deg, #ff0000, #850000);
-      color: #000;
-      padding: 10px 40px 10px 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
-      font-size: 0.9rem;
-      opacity: 0;
-      transform: translateY(-20px);
-      animation: slideIn 0.5s ease forwards, pulseAlert 2s infinite alternate;
-      z-index: 1000;
-    }
-    #alertBox .close-btn {
-      position: absolute;
-      top: 50%;
-      right: 10px;
-      transform: translateY(-50%);
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      color: #000;
-      transition: color 0.2s ease;
-    }
-    #alertBox .close-btn:hover {
-      color: #fff;
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulseAlert {
-      from { box-shadow: 0 0 15px rgba(255, 255, 0, 0.5); }
-      to { box-shadow: 0 0 25px rgba(255, 255, 0, 0.8); }
-    }
-    #quoteTooltip {
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #222;
-      color: #ffff00;
-      padding: 10px;
-      border-radius: 5px;
-      font-size: 0.9rem;
-      opacity: 0;
-      pointer-events: none;
-      box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      transform: translateX(-50%) translateY(10px);
-    }
-    #quoteBtn:hover #quoteTooltip {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    #notification.show { opacity: 1; }
     #playerContainer {
       position: fixed;
       bottom: 20px;
@@ -315,44 +177,87 @@
       display: none;
       z-index: 1000;
     }
-    #playerContainer iframe {
-      border: none;
-      border-radius: 5px;
-    }
+    #playerContainer iframe { border: none; border-radius: 5px; }
     #playerContainer .close-player {
       position: absolute;
       top: 5px;
       right: 5px;
       color: #ffff00;
       font-size: 1.2rem;
-      font-weight: bold;
       cursor: pointer;
-      transition: color 0.2s ease;
     }
-    #playerContainer .close-player:hover {
-      color: #888;
+    #modeSelectScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(45deg, #0a0a0a, #1a1a1a, #0a0a0a);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 9999;
     }
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-        padding: 1rem;
-      }
-      .songs, .column {
-        max-width: 100%;
-        margin: 0.5rem 0;
-      }
-      #downloadBtn, #resetBtn, #themeToggle, #quoteBtn {
-        width: 80%;
-        text-align: center;
-      }
-      #alertBox {
-        font-size: 0.8rem;
-        padding: 8px 30px 8px 15px;
-      }
-      #playerContainer iframe {
-        width: 100%;
-        height: 200px;
-      }
+    #modeSelectScreen h1 {
+      color: #ffff00;
+      text-shadow: 0 0 5px rgba(255, 255, 0, 0.5);
+    }
+    #modeSelectScreen button {
+      margin: 10px;
+      padding: 15px 30px;
+      background: #222;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+    #modeSelectScreen button:hover {
+      background: #333;
+      transform: scale(1.1);
+    }
+    #duelsScreen { padding: 2rem; text-align: center; }
+    #duelsSetup, #duelsGame, #lobbyScreen {
+      background: #111;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255, 255, 0, 0.3);
+    }
+    #duelsSetup input, #duelsGame input, #lobbyScreen input {
+      padding: 0.5rem;
+      margin: 0.5rem;
+      background: #222;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 5px;
+    }
+    #duelsGame button, #lobbyScreen button {
+      padding: 0.5rem 1rem;
+      background: #ffff00;
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    #playerInputs {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 1rem;
+    }
+    #countdown {
+      font-size: 2rem;
+      color: #ffff00;
+      margin: 1rem 0;
+    }
+    #duelNotification {
+      margin-top: 1rem;
+      color: #ffff00;
+    }
+    #lobbyPlayers {
+      color: #ffff00;
+      margin-top: 1rem;
     }
     footer {
       position: fixed;
@@ -364,72 +269,89 @@
       color: #888;
       font-size: 0.9rem;
     }
-    .light-mode footer {
-      background: #f0f0f0;
-      color: #000;
-    }
   </style>
 </head>
 <body>
   <div id="particles-js"></div>
 
-  <div id="introScreen">
-    <video id="introVideo" src="wstep.mp4" autoplay controls playsinline></video>
-    <button onclick="skipIntro()">Pomiń film</button>
+  <!-- Ekran wyboru trybu -->
+  <div id="modeSelectScreen">
+    <h1>Wybierz tryb gry</h1>
+    <button onclick="startRanking()">Ranking</button>
+    <button onclick="startDuels()">Duels</button>
   </div>
 
-  <div id="mainContent" style="display: none;">
-    <div id="alertBox">
-      Jeśli odtwarzacz nie działa prawidłowo kliknij Obejrzyj w YouTube. Pracujemy nad tym!
-      <span class="close-btn" onclick="closeAlert()">X</span>
+  <!-- Ekran Ranking -->
+  <div id="rankingScreen" style="display: none;">
+    <div id="introScreen">
+      <video id="introVideo" src="wstep.mp4" autoplay controls playsinline></video>
+      <button onclick="skipIntro()">Pomiń film</button>
     </div>
-    <div id="progressBar"></div>
-
-    <div class="container">
-      <div class="songs" id="songList">
-        <h2>🎵 Lista Utworów</h2>
+    <div id="mainContent" style="display: none;">
+      <div class="container">
+        <div class="songs" id="songList">
+          <h2>🎵 Lista Utworów</h2>
+        </div>
+        <div class="column" data-score="10"><h2>10/10</h2></div>
+        <div class="column" data-score="5"><h2>5/10</h2></div>
+        <div class="column" data-score="0"><h2>0/10</h2></div>
       </div>
-
-      <div class="column" data-score="10">
-        <h2>10/10</h2>
-      </div>
-      <div class="column" data-score="5">
-        <h2>5/10</h2>
-      </div>
-      <div class="column" data-score="0">
-        <h2>0/10</h2>
+      <button id="downloadBtn" onclick="downloadScreenshot()">📥 POBIERZ</button>
+      <button id="resetBtn" onclick="resetRanking()">🔄 RESET</button>
+      <button id="themeToggle" onclick="toggleTheme()">🌙 Tryb</button>
+      <div id="notification"></div>
+      <div id="playerContainer">
+        <span class="close-player" onclick="closePlayer()">X</span>
       </div>
     </div>
-
-    <button id="downloadBtn" onclick="downloadScreenshot()">📥 POBIERZ</button>
-    <button id="resetBtn" onclick="resetRanking()">🔄 RESET</button>
-    <button id="themeToggle" onclick="toggleTheme()">🌙 Tryb</button>
-    <button id="quoteBtn">🎶 Cytat
-      <div id="quoteTooltip"></div>
-    </button>
-
-    <div id="stats"></div>
-    <div id="timer">Czas na stronie: 0s</div>
-
-    <input type="text" id="newSong" placeholder="Dodaj własny utwór">
-    <button id="addSongBtn" onclick="addSong()">Dodaj</button>
-
-    <div>
-      <h7>Nowe muzyki planowane na stronie - 10.04.2025</h7>
-    </div>
-
-    <div id="notification"></div>
-    <div id="playerContainer">
-      <span class="close-player" onclick="closePlayer()">X</span>
-    </div>
+    <footer>© Copyright Dorian.S</footer>
   </div>
 
-  <footer>© Copyright Dorian.S</footer>
+  <!-- Ekran Duels -->
+  <div id="duelsScreen" style="display: none;">
+    <div id="duelsSetup" style="display: none;">
+      <h2>Tryb Duels</h2>
+      <button onclick="createSession()">Stwórz nową sesję</button>
+      <button onclick="joinSession()">Dołącz do sesji</button>
+      <div id="sessionCode" style="display: none;">
+        <p>Twój kod sesji: <span id="generatedCode"></span></p>
+        <input type="text" id="playerName" placeholder="Twoja nazwa">
+        <button onclick="showLobby()">Przejdź do lobby</button>
+      </div>
+      <div id="joinCode" style="display: none;">
+        <input type="text" id="sessionInput" placeholder="Wprowadź kod sesji">
+        <input type="text" id="joinPlayerName" placeholder="Twoja nazwa">
+        <button onclick="joinLobby()">Dołącz do lobby</button>
+      </div>
+    </div>
+    <div id="lobbyScreen" style="display: none;">
+      <h2>Lobby</h2>
+      <p>Kod sesji: <span id="lobbyCode"></span></p>
+      <div id="lobbyPlayers"></div>
+      <button onclick="startDuelFromLobby()">Rozpocznij pojedynek</button>
+      <button onclick="resetDuel()">Wyjdź z lobby</button>
+    </div>
+    <div id="duelsGame" style="display: none;">
+      <h2 id="duelTitle"></h2>
+      <div id="countdown"></div>
+      <button id="playBtn" style="display: none;" onclick="playDuelSong()">Odtwórz</button>
+      <div id="playerInputs">
+        <div>
+          <h3 id="player1Title"></h3>
+          <input type="text" id="player1Artist" placeholder="Artysta">
+          <input type="text" id="player1Title" placeholder="Tytuł">
+          <button onclick="checkAnswer(1)">Sprawdź</button>
+        </div>
+      </div>
+      <button id="play7sBtn" style="display: none;" onclick="play7sDuelSong()">Odtwórz 7 sekund</button>
+      <div id="duelNotification"></div>
+      <button onclick="resetDuel()">Nowa gra</button>
+    </div>
+  </div>
 
   <audio id="dropSound" src="drop.mp3"></audio>
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
     particlesJS("particles-js", {
@@ -450,6 +372,18 @@
       "retina_detect": true
     });
 
+    // Przełączanie trybów
+    function startRanking() {
+      document.getElementById("modeSelectScreen").style.display = "none";
+      document.getElementById("rankingScreen").style.display = "block";
+    }
+
+    function startDuels() {
+      document.getElementById("modeSelectScreen").style.display = "none";
+      document.getElementById("duelsScreen").style.display = "block";
+      document.getElementById("duelsSetup").style.display = "block";
+    }
+
     function skipIntro() {
       const introScreen = document.getElementById('introScreen');
       const mainContent = document.getElementById('mainContent');
@@ -463,16 +397,6 @@
       }, 300);
     }
     document.getElementById("introVideo").addEventListener("ended", skipIntro);
-    setTimeout(() => {
-      if (document.getElementById('introScreen').style.display !== 'none') skipIntro();
-    }, 50000);
-
-    function closeAlert() {
-      const alertBox = document.getElementById('alertBox');
-      alertBox.style.opacity = '0';
-      alertBox.style.transform = 'translateY(-20px)';
-      setTimeout(() => alertBox.style.display = 'none', 500);
-    }
 
     function downloadScreenshot() {
       html2canvas(document.querySelector(".container")).then(canvas => {
@@ -485,10 +409,7 @@
 
     function resetRanking() {
       const songList = document.getElementById("songList");
-      document.querySelectorAll(".column .song").forEach(song => {
-        songList.appendChild(song);
-      });
-      updateStats();
+      document.querySelectorAll(".column .song").forEach(song => songList.appendChild(song));
     }
 
     function toggleTheme() {
@@ -497,23 +418,7 @@
 
     const songs = [
       { title: "DOMEK W GÓRACH – Wrzecion, Ola Kędra", videoId: "yxEuNBZ4pwM" },
-      { title: "Sophia Loren – Tymek, Urbanski", videoId: "O-PjYv8Vgc0" },
-      { title: "Pardon – Louis Villain, Budda", videoId: "gvW0meiDG-0" },
-      { title: "Multisport – Kaz Bałagane, Oskar83", videoId: "gDcNzblrePw" },
-      { title: "PARĘ CHWIL – Wrzecion", videoId: "zgBUk2eObUE" },
-      { title: "Nicea – PRO8L3M", videoId: "846ml4oPRiU" },
-      { title: "Bez Strachu – Paluch", videoId: "4pu-lKgm-dg" },
-      { title: "Wszyscy w Gucci – Hellfield, Skolim, CrackHouse", videoId: "AhNQMjtrHgM" },
-      { title: "Na Szczycie – Grubson", videoId: "6BnT_wkuMBA" },
-      { title: "Żyć aż do bólu – Chada", videoId: "s35kfWoHDhM" },
-      { title: "Adrenalina – NinoOficjalnie", videoId: "1wRuUOxUBts" },
-      { title: "5 INFLUENCEREK – Zeamsone", videoId: "OEPI8I-Zjz4" },
-      { title: "Język Ciała – Tymek, Big Scythe", videoId: "pImrABc4s58" },
-      { title: "FALA – Guzior, Oskar83", videoId: "H30R1BUpRF8" },
-      { title: "Pijemy Za Lepszy Czas – Smolasty, 730 Huncho, Nearr", videoId: "Hr8oqVHxYog" },
-      { title: "Nie potrzeba mi nic więcej – Hinol Polska Wersja", videoId: "meH-Ypryf0E" },
-      { title: "Znikam – Gibbs, DOPEHOUSE", videoId: "alKMn0Yw9xk" },
-      { title: "Impreza – Sobel", videoId: "Sug433bP-mw" },
+      { title: "Sophia Loren – Tymek, Urbanski", videoId: "O-PjYv8Vgc0" }
     ];
 
     const songList = document.getElementById("songList");
@@ -536,9 +441,7 @@
       return div;
     }
 
-    songs.forEach((song, index) => {
-      songList.appendChild(createSongElement(song.title, index, song.videoId));
-    });
+    songs.forEach((song, index) => songList.appendChild(createSongElement(song.title, index, song.videoId)));
 
     document.querySelectorAll(".column").forEach(col => {
       col.addEventListener("dragover", e => {
@@ -546,18 +449,16 @@
         e.dataTransfer.dropEffect = "move";
         col.classList.add("drag-over");
       });
-      col.addEventListener("dragleave", () => {
-        col.classList.remove("drag-over");
-      });
+      col.addEventListener("dragleave", () => col.classList.remove("drag-over"));
       col.addEventListener("drop", e => {
         e.preventDefault();
         const title = e.dataTransfer.getData("text/plain");
-        const songDiv = [...songList.children, ...document.querySelectorAll(".column .song")].find(d => d.textContent.includes(title));
+        const songDiv = [...songList.children, ...document.querySelectorAll(".column .song")]
+          .find(d => d.textContent.includes(title));
         if (songDiv) {
           songDiv.classList.add("dropped");
           col.appendChild(songDiv);
           document.getElementById("dropSound").play();
-          updateStats();
           col.classList.remove("drag-over");
           setTimeout(() => songDiv.classList.remove("dropped"), 300);
         }
@@ -567,15 +468,10 @@
     function playSong(title, videoId) {
       const playerContainer = document.getElementById("playerContainer");
       playerContainer.innerHTML = '<span class="close-player" onclick="closePlayer()">X</span>';
-      
-      const embedUrl = videoId 
-        ? `https://www.youtube.com/embed/${videoId}?autoplay=1`
-        : `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(title)}&autoplay=1`;
-      
       const iframe = document.createElement("iframe");
       iframe.width = "560";
       iframe.height = "315";
-      iframe.src = embedUrl;
+      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
       iframe.allow = "autoplay; encrypted-media";
       playerContainer.appendChild(iframe);
       playerContainer.style.display = "block";
@@ -587,67 +483,184 @@
       playerContainer.innerHTML = '<span class="close-player" onclick="closePlayer()">X</span>';
     }
 
-    function addSong() {
-      const input = document.getElementById("newSong");
-      const title = input.value.trim();
-      if (title) {
-        songList.appendChild(createSongElement(title, 0));
-        input.value = "";
-        showNotification(`Dodano utwór: ${title}`);
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ['#ffff00', '#888', '#0a0a0a']
-        });
+    // Duels - konfiguracja pseudo-online z lobby
+    let sessionCode = "";
+    let playerName = "";
+    let isHost = false;
+    let lobbyPlayers = [];
+
+    function createSession() {
+      sessionCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      document.getElementById("sessionCode").style.display = "block";
+      document.getElementById("joinCode").style.display = "none";
+      document.getElementById("generatedCode").textContent = sessionCode;
+    }
+
+    function joinSession() {
+      document.getElementById("sessionCode").style.display = "none";
+      document.getElementById("joinCode").style.display = "block";
+    }
+
+    function showLobby() {
+      playerName = document.getElementById("playerName").value.trim() || "Gracz 1";
+      isHost = true;
+      lobbyPlayers = [playerName];
+      document.getElementById("duelsSetup").style.display = "none";
+      document.getElementById("lobbyScreen").style.display = "block";
+      document.getElementById("lobbyCode").textContent = sessionCode;
+      updateLobbyPlayers();
+    }
+
+    function joinLobby() {
+      const inputCode = document.getElementById("sessionInput").value.trim().toUpperCase();
+      const joinName = document.getElementById("joinPlayerName").value.trim() || "Gracz 2";
+      if (inputCode === sessionCode) {
+        isHost = false;
+        playerName = joinName;
+        // Symulacja dołączenia - w rzeczywistości host musi ręcznie dodać gościa
+        alert(`Powiedz gospodarzowi, żeby wpisał Twój nick: ${joinName}`);
+        startDuelFromGuest(joinName);
+      } else {
+        alert("Nieprawidłowy kod sesji!");
       }
     }
 
-    function showNotification(message) {
-      const notification = document.getElementById("notification");
-      notification.textContent = message;
-      notification.classList.add("show");
-      setTimeout(() => {
-        notification.classList.remove("show");
-      }, 3000);
-    }
-
-    function updateStats() {
-      const stats = document.getElementById("stats");
-      stats.innerHTML = "";
-      document.querySelectorAll(".column").forEach(col => {
-        const count = col.querySelectorAll(".song").length;
-        stats.innerHTML += `<p>${col.querySelector("h2").textContent}: ${count} utworów</p>`;
+    function updateLobbyPlayers() {
+      const lobbyPlayersEl = document.getElementById("lobbyPlayers");
+      lobbyPlayersEl.innerHTML = "<h3>Gracze w lobby:</h3>";
+      lobbyPlayers.forEach(player => {
+        lobbyPlayersEl.innerHTML += `<p>${player}</p>`;
       });
+      if (isHost) {
+        lobbyPlayersEl.innerHTML += '<input type="text" id="addPlayer" placeholder="Dodaj nick gościa"><button onclick="addPlayerToLobby()">Dodaj</button>';
+      }
     }
-    setInterval(updateStats, 1000);
 
-    let timeSpent = 0;
-    setInterval(() => {
-      timeSpent++;
-      const minutes = Math.floor(timeSpent / 60);
-      const seconds = timeSpent % 60;
-      document.getElementById("timer").textContent = 
-        `Czas na stronie: ${minutes > 0 ? minutes + 'm ' : ''}${seconds}s`;
-    }, 1000);
+    function addPlayerToLobby() {
+      const newPlayer = document.getElementById("addPlayer").value.trim();
+      if (newPlayer && !lobbyPlayers.includes(newPlayer)) {
+        lobbyPlayers.push(newPlayer);
+        updateLobbyPlayers();
+      }
+    }
 
-    const quotes = [
-      "Muzyka to uniwersalny język ludzkości. – H. W. Longfellow",
-      "Bez muzyki życie byłoby błędem. – Friedrich Nietzsche",
-      "Muzyka wyraża to, czego nie da się powiedzieć. – Victor Hugo",
-      "Tam, gdzie słowa zawodzą, przemawia muzyka. – Hans Christian Andersen",
-      "Muzyka jest oddechem duszy i sumienia. – Platon",
-      "Życie bez muzyki byłoby jak ciało bez duszy. – Cicero",
-      "Muzyka to magia, która łączy serca. – Anonim"
-    ];
+    function startDuelFromLobby() {
+      if (lobbyPlayers.length < 2) {
+        alert("Czekaj na drugiego gracza!");
+        return;
+      }
+      document.getElementById("lobbyScreen").style.display = "none";
+      document.getElementById("duelsGame").style.display = "block";
+      document.getElementById("duelTitle").textContent = `${lobbyPlayers[0]} vs ${lobbyPlayers[1]}`;
+      document.getElementById("player1Title").textContent = isHost ? lobbyPlayers[0] : lobbyPlayers[1];
+      startCountdown();
+    }
 
-    const quoteBtn = document.getElementById("quoteBtn");
-    const quoteTooltip = document.getElementById("quoteTooltip");
+    function startDuelFromGuest(guestName) {
+      document.getElementById("duelsSetup").style.display = "none";
+      document.getElementById("duelsGame").style.display = "block";
+      document.getElementById("duelTitle").textContent = `Gracz 1 vs ${guestName}`;
+      document.getElementById("player1Title").textContent = guestName;
+      startCountdown();
+    }
 
-    quoteBtn.addEventListener("mouseover", () => {
-      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      quoteTooltip.textContent = randomQuote;
-    });
+    function startCountdown() {
+      let countdown = 3;
+      const countdownEl = document.getElementById("countdown");
+      countdownEl.textContent = countdown;
+      const interval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+          countdownEl.textContent = countdown;
+        } else {
+          clearInterval(interval);
+          countdownEl.textContent = "Start!";
+          document.getElementById("playBtn").style.display = "block";
+          startTimer();
+        }
+      }, 1000);
+    }
+
+    let timeLeft;
+    function startTimer() {
+      timeLeft = 15;
+      const timer = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          showDuelNotification("Czas minął! Możesz odtworzyć 7 sekund.");
+          document.getElementById("play7sBtn").style.display = "block";
+        }
+      }, 1000);
+    }
+
+    const duelSong = { artist: "Vkie", title: "2025 freestyle", videoId: "TUTAJ_WSTAW_VIDEO_ID" };
+    function playDuelSong() {
+      playSongLimited(duelSong.videoId, 3);
+    }
+
+    function play7sDuelSong() {
+      playSongLimited(duelSong.videoId, 7);
+    }
+
+    function playSongLimited(videoId, duration) {
+      const playerContainer = document.getElementById("playerContainer");
+      playerContainer.innerHTML = '<span class="close-player" onclick="closePlayer()">X</span>';
+      const iframe = document.createElement("iframe");
+      iframe.width = "560";
+      iframe.height = "315";
+      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&start=0&end=${duration}`;
+      iframe.allow = "autoplay; encrypted-media";
+      playerContainer.appendChild(iframe);
+      playerContainer.style.display = "block";
+    }
+
+    function checkAnswer(player) {
+      const artistInput = document.getElementById("player1Artist").value.trim().toLowerCase();
+      const titleInput = document.getElementById("player1Title").value.trim().toLowerCase();
+      const correctArtist = duelSong.artist.toLowerCase();
+      const correctTitle = duelSong.title.toLowerCase();
+
+      if (artistInput === correctArtist && titleInput === correctTitle) {
+        showDuelNotification(`${isHost ? lobbyPlayers[0] : lobbyPlayers[1]} wygrał!`);
+        disableInputs();
+      } else if (artistInput === correctArtist) {
+        showDuelNotification("Dobry artysta, ale zły tytuł!");
+      } else if (titleInput === correctTitle) {
+        showDuelNotification("Dobry tytuł, ale zły artysta!");
+      } else {
+        showDuelNotification("Źle! Spróbuj jeszcze raz.");
+      }
+    }
+
+    function disableInputs() {
+      document.querySelectorAll("#playerInputs input, #playerInputs button").forEach(el => el.disabled = true);
+    }
+
+    function showDuelNotification(message) {
+      const notification = document.getElementById("duelNotification");
+      notification.textContent = message;
+      notification.style.opacity = "1";
+      setTimeout(() => notification.style.opacity = "0", 3000);
+    }
+
+    function resetDuel() {
+      document.getElementById("duelsGame").style.display = "none";
+      document.getElementById("lobbyScreen").style.display = "none";
+      document.getElementById("duelsSetup").style.display = "block";
+      document.getElementById("playBtn").style.display = "none";
+      document.getElementById("play7sBtn").style.display = "none";
+      document.getElementById("duelNotification").textContent = "";
+      document.querySelectorAll("#playerInputs input").forEach(input => {
+        input.value = "";
+        input.disabled = false;
+      });
+      document.querySelectorAll("#playerInputs button").forEach(btn => btn.disabled = false);
+      closePlayer();
+      document.getElementById("sessionCode").style.display = "none";
+      document.getElementById("joinCode").style.display = "none";
+      lobbyPlayers = [];
+    }
   </script>
 </body>
 </html>
