@@ -45,13 +45,8 @@
       border-radius: 10px;
       background-color: #111;
     }
-    .column.drag-over {
-      animation: pulse 0.5s infinite alternate;
-    }
-    @keyframes pulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.02); }
-    }
+    .column.drag-over { animation: pulse 0.5s infinite alternate; }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.02); } }
     .column[data-score="10"] { border-color: #2bff00; box-shadow: 0 0 10px rgba(255, 255, 0, 0.3); }
     .column[data-score="5"] { border-color: #fffb00; box-shadow: 0 0 10px rgba(136, 136, 136, 0.3); }
     .column[data-score="0"] { border-color: #ff0000; box-shadow: 0 0 10px rgba(68, 68, 68, 0.3); }
@@ -67,17 +62,11 @@
       justify-content: space-between;
       align-items: center;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .song:hover { background-color: #333; transform: scale(1.02); box-shadow: 0 2px 10px rgba(255, 255, 0, 0.2); }
     .song:active { transform: scale(0.98); }
     .song.dropped { animation: dropEffect 0.3s ease; }
-    @keyframes dropEffect {
-      0% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
+    @keyframes dropEffect { 0% { transform: scale(1.1); } 100% { transform: scale(1); } }
     h2 { text-align: center; color: #fff; text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); }
     .play-btn { color: #ffff00; cursor: pointer; }
     .play-btn:hover { color: #888; }
@@ -191,8 +180,9 @@
         <div>
           <h3 id="player1Title"></h3>
           <input type="text" id="player1Artist" placeholder="Artysta">
-          <input type="text" id="player1Title" placeholder="Tytuł">
-          <button onclick="checkAnswer(1)">Sprawdź</button>
+          <button id="checkArtistBtn" onclick="checkArtist()">Sprawdź artystę</button>
+          <input type="text" id="player1Title" placeholder="Tytuł" disabled>
+          <button id="checkTitleBtn" onclick="checkTitle()" style="display: none;">Sprawdź tytuł</button>
         </div>
       </div>
       <button id="play7sBtn" style="display: none;" onclick="play7sDuelSong()">Odtwórz 7 sekund</button>
@@ -342,9 +332,10 @@
     let isHost = false;
     let lobbyPlayers = [];
     let sessionId = "";
+    let artistCorrect = false;
 
     function createSession() {
-      peer = new Peer(); // Utwórz nowy Peer z losowym ID
+      peer = new Peer();
       peer.on('open', (id) => {
         sessionId = id;
         document.getElementById("sessionCode").style.display = "block";
@@ -358,6 +349,13 @@
             lobbyPlayers.push(data.name);
             updateLobbyPlayers();
             conn.send({ type: 'lobbyUpdate', players: lobbyPlayers });
+          } else if (data.type === 'play') {
+            playDuelSong();
+          } else if (data.type === 'play7s') {
+            play7sDuelSong();
+          } else if (data.type === 'result') {
+            showDuelNotification(data.message);
+            disableInputs();
           }
         });
       });
@@ -399,6 +397,13 @@
             updateLobbyPlayers();
           } else if (data.type === 'start') {
             startDuelFromLobby();
+          } else if (data.type === 'play') {
+            playDuelSong();
+          } else if (data.type === 'play7s') {
+            play7sDuelSong();
+          } else if (data.type === 'result') {
+            showDuelNotification(data.message);
+            disableInputs();
           }
         });
       });
@@ -424,29 +429,12 @@
       document.getElementById("duelsGame").style.display = "block";
       document.getElementById("duelTitle").textContent = `${lobbyPlayers[0]} vs ${lobbyPlayers[1]}`;
       document.getElementById("player1Title").textContent = isHost ? lobbyPlayers[0] : lobbyPlayers[1];
-      startCountdown();
+      document.getElementById("playBtn").style.display = "block";
+      startTimer();
     }
 
-    function startCountdown() {
-      let countdown = 3;
-      const countdownEl = document.getElementById("countdown");
-      countdownEl.textContent = countdown;
-      const interval = setInterval(() => {
-        countdown--;
-        if (countdown > 0) {
-          countdownEl.textContent = countdown;
-        } else {
-          clearInterval(interval);
-          countdownEl.textContent = "Start!";
-          document.getElementById("playBtn").style.display = "block";
-          startTimer();
-        }
-      }, 1000);
-    }
-
-    let timeLeft;
     function startTimer() {
-      timeLeft = 15;
+      let timeLeft = 15;
       const timer = setInterval(() => {
         timeLeft--;
         if (timeLeft <= 0) {
@@ -457,13 +445,15 @@
       }, 1000);
     }
 
-    const duelSong = { artist: "Vkie", title: "2025 freestyle", videoId: "QpfMgcvz7to" };
+    const duelSong = { artist: "Vkie", title: "2025 freestyle", videoId: "TUTAJ_WSTAW_VIDEO_ID" };
     function playDuelSong() {
       playSongLimited(duelSong.videoId, 3);
+      if (isHost && conn) conn.send({ type: 'play' });
     }
 
     function play7sDuelSong() {
       playSongLimited(duelSong.videoId, 7);
+      if (isHost && conn) conn.send({ type: 'play7s' });
     }
 
     function playSongLimited(videoId, duration) {
@@ -478,28 +468,41 @@
       playerContainer.style.display = "block";
     }
 
-    function checkAnswer(player) {
+    function checkArtist() {
       const artistInput = document.getElementById("player1Artist").value.trim().toLowerCase();
-      const titleInput = document.getElementById("player1Title").value.trim().toLowerCase();
       const correctArtist = duelSong.artist.toLowerCase();
-      const correctTitle = duelSong.title.toLowerCase();
+      if (artistInput === correctArtist) {
+        showDuelNotification("Poprawny artysta! Teraz wpisz tytuł.");
+        document.getElementById("player1Artist").disabled = true;
+        document.getElementById("checkArtistBtn").style.display = "none";
+        document.getElementById("player1Title").disabled = false;
+        document.getElementById("checkTitleBtn").style.display = "inline-block";
+        artistCorrect = true;
+      } else {
+        showDuelNotification("Zły artysta! Spróbuj jeszcze raz.");
+      }
+    }
 
-      if (artistInput === correctArtist && titleInput === correctTitle) {
+    function checkTitle() {
+      const titleInput = document.getElementById("player1Title").value.trim().toLowerCase();
+      const correctTitle = duelSong.title.toLowerCase();
+      if (titleInput === correctTitle && artistCorrect) {
         const winner = isHost ? lobbyPlayers[0] : lobbyPlayers[1];
         showDuelNotification(`${winner} wygrał!`);
         disableInputs();
         if (conn) conn.send({ type: 'result', message: `${winner} wygrał!` });
-      } else if (artistInput === correctArtist) {
-        showDuelNotification("Dobry artysta, ale zły tytuł!");
-      } else if (titleInput === correctTitle) {
-        showDuelNotification("Dobry tytuł, ale zły artysta!");
       } else {
-        showDuelNotification("Źle! Spróbuj jeszcze raz.");
+        showDuelNotification("Zły tytuł! Spróbuj jeszcze raz.");
       }
     }
 
     function disableInputs() {
-      document.querySelectorAll("#playerInputs input, #playerInputs button").forEach(el => el.disabled = true);
+      document.getElementById("player1Artist").disabled = true;
+      document.getElementById("player1Title").disabled = true;
+      document.getElementById("checkArtistBtn").style.display = "none";
+      document.getElementById("checkTitleBtn").style.display = "none";
+      document.getElementById("playBtn").style.display = "none";
+      document.getElementById("play7sBtn").style.display = "none";
     }
 
     function showDuelNotification(message) {
@@ -516,15 +519,17 @@
       document.getElementById("playBtn").style.display = "none";
       document.getElementById("play7sBtn").style.display = "none";
       document.getElementById("duelNotification").textContent = "";
-      document.querySelectorAll("#playerInputs input").forEach(input => {
-        input.value = "";
-        input.disabled = false;
-      });
-      document.querySelectorAll("#playerInputs button").forEach(btn => btn.disabled = false);
+      document.getElementById("player1Artist").value = "";
+      document.getElementById("player1Title").value = "";
+      document.getElementById("player1Artist").disabled = false;
+      document.getElementById("player1Title").disabled = true;
+      document.getElementById("checkArtistBtn").style.display = "inline-block";
+      document.getElementById("checkTitleBtn").style.display = "none";
       closePlayer();
       document.getElementById("sessionCode").style.display = "none";
       document.getElementById("joinCode").style.display = "none";
       lobbyPlayers = [];
+      artistCorrect = false;
       if (peer) peer.destroy();
       conn = null;
     }
