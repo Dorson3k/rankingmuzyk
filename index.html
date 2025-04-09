@@ -484,13 +484,13 @@
     }
 
     // Duels - konfiguracja pseudo-online z lobby
-    let sessionCode = "";
     let playerName = "";
     let isHost = false;
     let lobbyPlayers = [];
 
     function createSession() {
-      sessionCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const sessionCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      localStorage.setItem("sessionCode", sessionCode); // Zapisz kod w localStorage
       document.getElementById("sessionCode").style.display = "block";
       document.getElementById("joinCode").style.display = "none";
       document.getElementById("generatedCode").textContent = sessionCode;
@@ -507,21 +507,21 @@
       lobbyPlayers = [playerName];
       document.getElementById("duelsSetup").style.display = "none";
       document.getElementById("lobbyScreen").style.display = "block";
-      document.getElementById("lobbyCode").textContent = sessionCode;
+      document.getElementById("lobbyCode").textContent = localStorage.getItem("sessionCode");
       updateLobbyPlayers();
     }
 
     function joinLobby() {
       const inputCode = document.getElementById("sessionInput").value.trim().toUpperCase();
       const joinName = document.getElementById("joinPlayerName").value.trim() || "Gracz 2";
-      if (inputCode === sessionCode) {
+      const storedCode = localStorage.getItem("sessionCode");
+      if (inputCode === storedCode) {
         isHost = false;
         playerName = joinName;
-        // Symulacja dołączenia - w rzeczywistości host musi ręcznie dodać gościa
         alert(`Powiedz gospodarzowi, żeby wpisał Twój nick: ${joinName}`);
         startDuelFromGuest(joinName);
       } else {
-        alert("Nieprawidłowy kod sesji!");
+        alert("Nieprawidłowy kod sesji! Upewnij się, że wpisujesz kod wygenerowany przez gospodarza.");
       }
     }
 
@@ -660,6 +660,7 @@
       document.getElementById("sessionCode").style.display = "none";
       document.getElementById("joinCode").style.display = "none";
       lobbyPlayers = [];
+      localStorage.removeItem("sessionCode"); // Wyczyść kod po resecie
     }
   </script>
 </body>
