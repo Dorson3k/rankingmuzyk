@@ -153,7 +153,7 @@
     <h1>Aktualizacje</h1>
     <ul>
       <li><strong>9 kwietnia 2025, 12:00</strong> - Dodano tryb Duels w wersji BETA z PeerJS, dwuetapowe sprawdzanie odpowiedzi (artysta, potem tytuł), naprawiono synchronizację odtwarzania piosenek, dodano zakładkę Aktualizacje.</li>
-      <!-- Tu możesz dodawać kolejne aktualizacje -->
+      <li><strong>11 kwietnia 2025</strong> - Poprawiono stabilność trybu Duels: lepsza obsługa błędów PeerJS, synchronizacja timera i odtwarzania, ulepszone powiadomienia i UX.</li>
     </ul>
     <button onclick="hideUpdates()">Wróć</button>
   </div>
@@ -312,40 +312,36 @@
     let artistCorrect = false;
 
     function createSession() {
-      peer = new Peer();
+      peer = new Peer({ debug: 2 });
       peer.on('open', (id) => {
         sessionId = id;
         document.getElementById("sessionCode").style.display = "block";
         document.getElementById("joinCode").style.display = "none";
         document.getElementById("generatedCode").textContent = sessionId;
+        showDuelNotification("Sesja utworzona! Podaj ID graczowi.");
+      });
+      peer.on('error', (err) => {
+        console.error("Błąd PeerJS:", err.type, err);
+        let message = "Błąd połączenia. Spróbuj ponownie.";
+        if (err.type === 'peer-unavailable') message = "Gracz niedostępny. Sprawdź ID sesji.";
+        if (err.type === 'network') message = "Problem z siecią. Sprawdź połączenie.";
+        showDuelNotification(message);
+        resetDuel();
       });
       peer.on('connection', (connection) => {
         conn = connection;
         conn.on('open', () => {
-          console.log("Połączenie z gościem nawiązane!");
+          showDuelNotification("Połączono z graczem!");
         });
-        conn.on('data', (data) => {
-          if (data.type === 'join') {
-            lobbyPlayers.push(data.name);
-            updateLobbyPlayers();
-            conn.send({ type: 'lobbyUpdate', players: lobbyPlayers });
-          } else if (data.type === 'play') {
-            playDuelSong();
-          } else if (data.type === 'play7s') {
-            play7sDuelSong();
-          } else if (data.type === 'result') {
-            showDuelNotification(data.message);
-            disableInputs();
-          }
+        conn.on('data', handleData);
+        conn.on('close', () => {
+          showDuelNotification("Gracz rozłączył się!");
+          resetDuel();
         });
         conn.on('error', (err) => {
           console.error("Błąd połączenia:", err);
-          showDuelNotification("Błąd połączenia z drugim graczem!");
+          showDuelNotification("Błąd połączenia z graczem!");
         });
-      });
-      peer.on('error', (err) => {
-        console.error("Błąd PeerJS:", err);
-        showDuelNotification("Błąd PeerJS! Spróbuj ponownie.");
       });
     }
 
@@ -383,20 +379,10 @@
           isHost = false;
           updateLobbyPlayers();
         });
-        conn.on('data', (data) => {
-          if (data.type === 'lobbyUpdate') {
-            lobbyPlayers = data.players;
-            updateLobbyPlayers();
-          } else if (data.type === 'start') {
-            startDuelFromLobby();
-          } else if (data.type === 'play') {
-            playDuelSong();
-          } else if (data.type === 'play7s') {
-            play7sDuelSong();
-          } else if (data.type === 'result') {
-            showDuelNotification(data.message);
-            disableInputs();
-          }
+        conn.on('data', handleData);
+        conn.on('close', () => {
+          showDuelNotification("Gospodarz rozłączył się!");
+          resetDuel();
         });
         conn.on('error', (err) => {
           console.error("Błąd połączenia:", err);
@@ -407,6 +393,40 @@
         console.error("Błąd PeerJS:", err);
         showDuelNotification("Błąd PeerJS! Sprawdź ID sesji.");
       });
+    }
+
+    function handleData(data) {
+      if (data.type === 'join') {
+        lobbyPlayers.push(data.name);
+        updateLobbyPlayers();
+        if (isHost && conn) {
+          conn.send({ type: 'lobbyUpdate', players: lobbyPlayers });
+        }
+      } else if (data.type === 'lobbyUpdate') {
+        lobbyPlayers = data.players;
+        updateLobbyPlayers();
+      } else if (data.type === 'start') {
+        document.getElementById("lobbyScreen").style.display = "none";
+        document.getElementById("duelsGame").style.display = "block";
+        document.getElementById("duelTitle").textContent = `${lobbyPlayers[0]} vs ${lobbyPlayers[1]}`;
+        document.getElementById("player1Title").textContent = isHost ? lobbyPlayers[0] : lobbyPlayers[1];
+        document.getElementById("playBtn").style.display = "block";
+        startTimer();
+      } else if (data.type === 'play') {
+        playSongLimited(duelSong.videoId, 3);
+      } else if (data.type === 'play7s') {
+        playSongLimited(duelSong.videoId, 7);
+      } else if (data.type === 'timer') {
+        document.getElementById("countdown").textContent = `Czas: ${data.time}s`;
+      } else if (data.type === 'timerEnd') {
+        showDuelNotification("Czas minął! Możesz odtworzyć 7 sekund.");
+        document.getElementById("play7sBtn").style.display = "block";
+      } else if (data.type === 'artistCorrect') {
+        showDuelNotification(`${data.player} poprawnie podał artystę!`);
+      } else if (data.type === 'result') {
+        showDuelNotification(data.message);
+        disableInputs();
+      }
     }
 
     function updateLobbyPlayers() {
@@ -422,7 +442,11 @@
         showDuelNotification("Czekaj na drugiego gracza!");
         return;
       }
-      if (isHost && conn) {
+      if (!isHost) {
+        showDuelNotification("Tylko gospodarz może rozpocząć pojedynek!");
+        return;
+      }
+      if (conn) {
         conn.send({ type: 'start' });
       }
       document.getElementById("lobbyScreen").style.display = "none";
@@ -435,25 +459,38 @@
 
     function startTimer() {
       let timeLeft = 15;
+      document.getElementById("countdown").textContent = `Czas: ${timeLeft}s`;
       const timer = setInterval(() => {
         timeLeft--;
+        document.getElementById("countdown").textContent = `Czas: ${timeLeft}s`;
+        if (isHost && conn) {
+          conn.send({ type: 'timer', time: timeLeft });
+        }
         if (timeLeft <= 0) {
           clearInterval(timer);
           showDuelNotification("Czas minął! Możesz odtworzyć 7 sekund.");
           document.getElementById("play7sBtn").style.display = "block";
+          if (isHost && conn) {
+            conn.send({ type: 'timerEnd' });
+          }
         }
       }, 1000);
     }
 
     const duelSong = { artist: "Vkie", title: "2025 freestyle", videoId: "TUTAJ_WSTAW_VIDEO_ID" };
+
     function playDuelSong() {
-      playSongLimited(duelSong.videoId, 3);
-      if (conn && !isHost) conn.send({ type: 'play' }); // Gość też może odtwarzać dla gospodarza
+      if (isHost) {
+        playSongLimited(duelSong.videoId, 3);
+        if (conn) conn.send({ type: 'play' });
+      }
     }
 
     function play7sDuelSong() {
-      playSongLimited(duelSong.videoId, 7);
-      if (conn && !isHost) conn.send({ type: 'play7s' });
+      if (isHost) {
+        playSongLimited(duelSong.videoId, 7);
+        if (conn) conn.send({ type: 'play7s' });
+      }
     }
 
     function playSongLimited(videoId, duration) {
@@ -466,6 +503,7 @@
       iframe.allow = "autoplay; encrypted-media";
       playerContainer.appendChild(iframe);
       playerContainer.style.display = "block";
+      setTimeout(() => closePlayer(), duration * 1000 + 500);
     }
 
     function checkArtist() {
@@ -478,6 +516,9 @@
         document.getElementById("player1Title").disabled = false;
         document.getElementById("checkTitleBtn").style.display = "inline-block";
         artistCorrect = true;
+        if (conn) {
+          conn.send({ type: 'artistCorrect', player: playerName });
+        }
       } else {
         showDuelNotification("Zły artysta! Spróbuj jeszcze raz.");
       }
@@ -490,7 +531,9 @@
         const winner = isHost ? lobbyPlayers[0] : lobbyPlayers[1];
         showDuelNotification(`${winner} wygrał!`);
         disableInputs();
-        if (conn) conn.send({ type: 'result', message: `${winner} wygrał!` });
+        if (conn) {
+          conn.send({ type: 'result', message: `${winner} wygrał!` });
+        }
       } else {
         showDuelNotification("Zły tytuł! Spróbuj jeszcze raz.");
       }
@@ -509,10 +552,11 @@
       const notification = document.getElementById("duelNotification");
       notification.textContent = message;
       notification.style.opacity = "1";
-      setTimeout(() => notification.style.opacity = "0", 3000);
+      setTimeout(() => notification.style.opacity = "0", 5000);
     }
 
     function resetDuel() {
+      if (!confirm("Czy na pewno chcesz zakończyć grę?")) return;
       document.getElementById("duelsGame").style.display = "none";
       document.getElementById("lobbyScreen").style.display = "none";
       document.getElementById("duelsSetup").style.display = "block";
@@ -530,8 +574,14 @@
       document.getElementById("joinCode").style.display = "none";
       lobbyPlayers = [];
       artistCorrect = false;
-      if (peer) peer.destroy();
-      conn = null;
+      if (conn) {
+        conn.close();
+        conn = null;
+      }
+      if (peer) {
+        peer.destroy();
+        peer = null;
+      }
     }
   </script>
 </body>
