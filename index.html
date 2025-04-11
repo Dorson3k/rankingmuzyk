@@ -10,13 +10,19 @@
             padding: 0;
             background: #000;
             color: #FFD700;
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', Arial, sans-serif;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             flex-direction: column;
+            transition: background 1s ease;
+        }
+
+        /* Subtelna animacja tła */
+        body.loaded {
+            background: radial-gradient(circle, #1a1a1a, #000);
         }
 
         /* Loader */
@@ -40,12 +46,12 @@
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #FFD700;
-            border-top: 5px solid transparent;
+            width: 60px;
+            height: 60px;
+            border: 6px solid #FFD700;
+            border-top: 6px solid #fff;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 1.2s ease-in-out infinite;
         }
 
         @keyframes spin {
@@ -56,11 +62,18 @@
         /* Tekst z animacją pisania */
         .typewriter h1 {
             overflow: hidden;
-            border-right: 0.15em solid #FFD700;
+            border-right: 0.15em solid #fff;
             white-space: nowrap;
             margin: 0 auto;
-            letter-spacing: 0.15em;
-            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+            letter-spacing: 0.1em;
+            font-size: 2.5em;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .typewriter h1.visible {
+            opacity: 1;
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
         }
 
         @keyframes typing {
@@ -70,18 +83,55 @@
 
         @keyframes blink-caret {
             from, to { border-color: transparent }
-            50% { border-color: #FFD700 }
+            50% { border-color: #fff }
         }
 
         /* Kontener na treści */
         .content {
             text-align: center;
             z-index: 2;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .content.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .content p {
-            font-size: 1.2em;
-            margin: 10px 0;
+            font-size: 1.3em;
+            margin: 15px 0;
+            color: #FFD700;
+        }
+
+        .content p.contact {
+            color: #fff;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .content p.contact:hover {
+            color: #FFD700;
+        }
+
+        /* Przycisk CTA */
+        .cta-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #FFD700;
+            color: #000;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        .cta-button:hover {
+            background: #fff;
+            transform: scale(1.05);
         }
 
         /* Particles */
@@ -90,6 +140,7 @@
             width: 100%;
             height: 100%;
             z-index: 1;
+            opacity: 0.3; /* Mniej widoczne */
         }
     </style>
 </head>
@@ -103,42 +154,52 @@
     <div id="particles-js"></div>
 
     <!-- Treść strony -->
-    <div class="content">
+    <div class="content" id="content">
         <div class="typewriter">
-            <h1>Strona w budowie</h1>
+            <h1 id="typewriter-text">Strona w budowie</h1>
         </div>
         <p>Planowane wydanie: 01.05.2025</p>
-        <p>Zapraszamy wkrótce! Pracujemy nad czymś wyjątkowym.</p>
-        <p>Kontakt: kontakt@przyklad.pl</p>
+        <p>Tworzymy coś niesamowitego! Wróć wkrótce, by zobaczyć efekty.</p>
+        <p class="contact">Kontakt: kontakt@przyklad.pl</p>
+        <a href="mailto:kontakt@przyklad.pl" class="cta-button">Napisz do nas</a>
     </div>
 
     <!-- Skrypty -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <script>
         // Inicjalizacja Particles.js
         particlesJS('particles-js', {
             particles: {
-                number: { value: 80, density: { enable: true, value_area: 800 } },
-                color: { value: '#FFD700' },
+                number: { value: 50, density: { enable: true, value_area: 1000 } },
+                color: { value: ['#FFD700', '#fff'] }, /* Dodano biały kolor */
                 shape: { type: 'circle' },
-                opacity: { value: 0.5, random: false },
-                size: { value: 3, random: true },
-                line_linked: { enable: true, distance: 150, color: '#FFD700', opacity: 0.4, width: 1 },
-                move: { enable: true, speed: 6, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
+                opacity: { value: 0.3, random: true },
+                size: { value: 2, random: true },
+                line_linked: { enable: true, distance: 200, color: '#FFD700', opacity: 0.2, width: 1 },
+                move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false } /* Wolniejsze */
             },
             interactivity: {
                 detect_on: 'canvas',
-                events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' }, resize: true },
-                modes: { grab: { distance: 400, line_linked: { opacity: 1 } }, bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 }, repulse: { distance: 200, duration: 0.4 }, push: { particles_nb: 4 }, remove: { particles_nb: 2 } }
+                events: { onhover: { enable: true, mode: 'grab' }, onclick: { enable: true, mode: 'push' }, resize: true },
+                modes: { grab: { distance: 300, line_linked: { opacity: 0.5 } }, bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 }, repulse: { distance: 200, duration: 0.4 }, push: { particles_nb: 3 }, remove: { particles_nb: 2 } }
             },
             retina_detect: true
         });
 
-        // Ukrywanie loadera po załadowaniu
+        // Logika loadera i animacji tekstu
         window.addEventListener('load', () => {
             setTimeout(() => {
-                document.getElementById('loader').classList.add('hidden');
-            }, 2000);
+                const loader = document.getElementById('loader');
+                const content = document.getElementById('content');
+                const typewriterText = document.getElementById('typewriter-text');
+                const body = document.body;
+
+                loader.classList.add('hidden');
+                body.classList.add('loaded');
+                content.classList.add('visible');
+                typewriterText.classList.add('visible');
+            }, 2500); /* Loader widoczny przez 2.5s */
         });
     </script>
 </body>
