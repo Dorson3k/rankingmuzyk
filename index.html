@@ -159,7 +159,7 @@
           <button id="checkTitleBtn" onclick="checkTitle()" style="display: none;">✅ Sprawdź tytuł</button>
         </div>
       </div>
-      <button id="play7sBtn" style="display: none;" onclick="play7sDuelSong()">🎵 Odtwórz 7 sekund</button>
+      <button id="play10sBtn" style="display: none;" onclick="play10sDuelSong()">🎵 Odtwórz 10 sekund</button>
       <div id="duelNotification"></div>
       <button id="nextRoundBtn" onclick="nextRound()">➡️ Następna runda</button>
       <button onclick="resetDuel()">🔄 Nowa gra</button>
@@ -172,6 +172,7 @@
     <ul>
       <li><strong>9 kwietnia 2025, 12:00</strong> - Dodano tryb Duels w wersji BETA z PeerJS, dwuetapowe sprawdzanie odpowiedzi (artysta, potem tytuł), naprawiono synchronizację odtwarzania piosenek, dodano zakładkę Aktualizacje.</li>
       <li><strong>11 kwietnia 2025</strong> - Ulepszono tryb Duels: system rund i punktacji, więcej piosenek, dynamiczny design z animacjami, pasek postępu timera, efekty dźwiękowe, lepsza synchronizacja i UX. Naprawiono przyciski na ekranie głównym.</li>
+      <li><strong>11 kwietnia 2025, późniejsza aktualizacja</strong> - Zmieniono odtwarzanie z 7s na 10s, dodano automatyczne przejście do następnej rundy po 15s od 10s odtwarzania, synchronizacja przejścia po odgadnięciu przez jednego gracza, naprawiono blokadę tytułu po odgadnięciu artysty.</li>
     </ul>
     <button onclick="hideUpdates()">Wróć</button>
   </div>
@@ -353,6 +354,7 @@
     let maxRounds = 3;
     let currentSong = null;
     let answerTime = null;
+    let secondPhaseTimer = null;
 
     const duelSongs = [
       { artist: "Vkie", title: "2025 freestyle", videoId: "TUTAJ_WSTAW_VIDEO_ID" },
@@ -462,14 +464,15 @@
         startNextRound();
       } else if (data.type === 'play') {
         playSongLimited(currentSong.videoId, 3);
-      } else if (data.type === 'play7s') {
-        playSongLimited(currentSong.videoId, 7);
+      } else if (data.type === 'play10s') {
+        playSongLimited(currentSong.videoId, 10);
       } else if (data.type === 'timer') {
         document.getElementById("countdown").textContent = `Czas: ${data.time}s`;
         document.getElementById("timerProgress").style.width = `${(data.time / 15) * 100}%`;
-      } else if (data.type === 'timerEnd') {
-        showDuelNotification("Czas minął! Możesz odtworzyć 7 sekund.");
-        document.getElementById("play7sBtn").style.display = "inline-block";
+      } else if (data.type === 'secondPhase') {
+        showDuelNotification("Czas minął! Możesz odtworzyć 10 sekund.");
+        document.getElementById("play10sBtn").style.display = "inline-block";
+        startSecondPhaseTimer(data.time);
       } else if (data.type === 'artistCorrect') {
         document.getElementById("correctSound").play();
         showDuelNotification(`${data.player} zdobył 1 punkt za artystę!`);
@@ -479,13 +482,17 @@
         showDuelNotification(`${data.player} zdobył ${data.points} punkty za tytuł!`);
         updateScores(data.scores);
         disableInputs();
+        if (isHost && conn) {
+          conn.send({ type: 'nextRound' });
+        }
+        startNextRound();
       } else if (data.type === 'nextRound') {
         startNextRound();
       } else if (data.type === 'gameEnd') {
         showDuelNotification(data.message);
         disableInputs();
         document.getElementById("playBtn").style.display = "none";
-        document.getElementById("play7sBtn").style.display = "none";
+        document.getElementById("play10sBtn").style.display = "none";
         document.getElementById("nextRoundBtn").style.display = "none";
       }
     }
@@ -522,6 +529,7 @@
     }
 
     function startNextRound() {
+      if (secondPhaseTimer) clearInterval(secondPhaseTimer);
       currentRound++;
       if (currentRound > maxRounds) {
         const winner = scores.player1 > scores.player2 ? lobbyPlayers[0] : scores.player2 > scores.player1 ? lobbyPlayers[1] : "Remis";
@@ -532,7 +540,7 @@
         }
         disableInputs();
         document.getElementById("playBtn").style.display = "none";
-        document.getElementById("play7sBtn").style.display = "none";
+        document.getElementById("play10sBtn").style.display = "none";
         document.getElementById("nextRoundBtn").style.display = "none";
         return;
       }
@@ -545,7 +553,7 @@
       document.getElementById("roundInfo").textContent = `Runda ${currentRound} z ${maxRounds}`;
       document.getElementById("playBtn").style.display = "inline-block";
       document.getElementById("nextRoundBtn").style.display = "inline-block";
-      document.getElementById("play7sBtn").style.display = "none";
+      document.getElementById("play10sBtn").style.display = "none";
       document.getElementById("duelNotification").textContent = "";
       document.getElementById("player1Artist").value = "";
       document.getElementById("player1Title").value = "";
@@ -572,11 +580,32 @@
         }
         if (timeLeft <= 0) {
           clearInterval(timer);
-          showDuelNotification("Czas minął! Możesz odtworzyć 7 sekund.");
-          document.getElementById("play7sBtn").style.display = "inline-block";
+          showDuelNotification("Czas minął! Możesz odtworzyć 10 sekund.");
+          document.getElementById("play10sBtn").style.display = "inline-block";
           if (isHost && conn) {
-            conn.send({ type: 'timerEnd' });
+            conn.send({ type: 'secondPhase', time: 15 });
           }
+          startSecondPhaseTimer(15);
+        }
+      }, 1000);
+    }
+
+    function startSecondPhaseTimer(timeLeft) {
+      document.getElementById("countdown").textContent = `Czas: ${timeLeft}s`;
+      document.getElementById("timerProgress").style.width = "100%";
+      secondPhaseTimer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("countdown").textContent = `Czas: ${timeLeft}s`;
+        document.getElementById("timerProgress").style.width = `${(timeLeft / 15) * 100}%`;
+        if (isHost && conn) {
+          conn.send({ type: 'timer', time: timeLeft });
+        }
+        if (timeLeft <= 0) {
+          clearInterval(secondPhaseTimer);
+          if (isHost && conn) {
+            conn.send({ type: 'nextRound' });
+          }
+          startNextRound();
         }
       }, 1000);
     }
@@ -588,10 +617,10 @@
       }
     }
 
-    function play7sDuelSong() {
+    function play10sDuelSong() {
       if (isHost) {
-        playSongLimited(currentSong.videoId, 7);
-        if (conn) conn.send({ type: 'play7s' });
+        playSongLimited(currentSong.videoId, 10);
+        if (conn) conn.send({ type: 'play10s' });
       }
     }
 
@@ -617,6 +646,7 @@
         scores[isHost ? "player1" : "player2"] += 1;
         showDuelNotification("Poprawny artysta! Teraz wpisz tytuł.");
         document.getElementById("player1Artist").disabled = true;
+        document.getElementById("checkArtistBtn").disabled = true; // Wyłącz przycisk "Sprawdź artystę"
         document.getElementById("checkArtistBtn").style.display = "none";
         document.getElementById("player1Title").disabled = false;
         document.getElementById("checkTitleBtn").style.display = "inline-block";
@@ -647,6 +677,10 @@
           conn.send({ type: 'titleCorrect', player: playerName, points, scores });
         }
         updateScores(scores);
+        if (isHost && conn) {
+          conn.send({ type: 'nextRound' });
+        }
+        startNextRound();
       } else {
         document.getElementById("wrongSound").play();
         showDuelNotification("Zły tytuł! Spróbuj jeszcze raz.");
@@ -665,6 +699,8 @@
     function disableInputs() {
       document.getElementById("player1Artist").disabled = true;
       document.getElementById("player1Title").disabled = true;
+      document.getElementById("checkArtistBtn").disabled = true;
+      document.getElementById("checkTitleBtn").disabled = true;
       document.getElementById("checkArtistBtn").style.display = "none";
       document.getElementById("checkTitleBtn").style.display = "none";
     }
@@ -678,17 +714,20 @@
 
     function resetDuel() {
       if (!confirm("Czy na pewno chcesz zakończyć grę?")) return;
+      if (secondPhaseTimer) clearInterval(secondPhaseTimer);
       document.getElementById("duelsGame").style.display = "none";
       document.getElementById("lobbyScreen").style.display = "none";
       document.getElementById("duelsSetup").style.display = "block";
       document.getElementById("playBtn").style.display = "none";
-      document.getElementById("play7sBtn").style.display = "none";
+      document.getElementById("play10sBtn").style.display = "none";
       document.getElementById("nextRoundBtn").style.display = "none";
       document.getElementById("duelNotification").textContent = "";
       document.getElementById("player1Artist").value = "";
       document.getElementById("player1Title").value = "";
       document.getElementById("player1Artist").disabled = false;
       document.getElementById("player1Title").disabled = true;
+      document.getElementById("checkArtistBtn").disabled = false;
+      document.getElementById("checkTitleBtn").disabled = false;
       document.getElementById("checkArtistBtn").style.display = "inline-block";
       document.getElementById("checkTitleBtn").style.display = "none";
       closePlayer();
