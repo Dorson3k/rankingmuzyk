@@ -1,752 +1,145 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <title>🎶 Ranking Muzyk</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-  <script>
-    let isFirstTitle = true;
-    setInterval(() => {
-      document.title = isFirstTitle ? "🔧 | Made By Dorson" : "🎶 | Ranking Muzyk";
-      isFirstTitle = !isFirstTitle;
-    }, 5000);
-  </script>
-  <style>
-    body {
-      background-color: #0a0a0a;
-      color: white;
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-    }
-    #particles-js { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-    .container { display: flex; justify-content: space-between; padding: 2rem; flex-wrap: nowrap; }
-    .songs, .column { flex: 1; min-width: 250px; max-width: 30%; margin: 0 1rem; padding: 1rem; border: 2px dashed #444; border-radius: 10px; background-color: #111; }
-    .column.drag-over { animation: pulse 0.5s infinite alternate; }
-    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.02); } }
-    .column[data-score="10"] { border-color: #2bff00; box-shadow: 0 0 10px rgba(255, 255, 0, 0.3); }
-    .column[data-score="5"] { border-color: #fffb00; box-shadow: 0 0 10px rgba(136, 136, 136, 0.3); }
-    .column[data-score="0"] { border-color: #ff0000; box-shadow: 0 0 10px rgba(68, 68, 68, 0.3); }
-    .song { background-color: #222; margin: 0.5rem 0; padding: 0.5rem; border-radius: 5px; cursor: grab; opacity: 0; animation: fadeIn 0.5s ease forwards; display: flex; justify-content: space-between; align-items: center; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .song:hover { background-color: #333; transform: scale(1.02); box-shadow: 0 2px 10px rgba(255, 255, 0, 0.2); }
-    .song:active { transform: scale(0.98); }
-    .song.dropped { animation: dropEffect 0.3s ease; }
-    @keyframes dropEffect { 0% { transform: scale(1.1); } 100% { transform: scale(1); } }
-    h2 { text-align: center; color: #fff; text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); }
-    .play-btn { color: #ffff00; cursor: pointer; }
-    .play-btn:hover { color: #888; }
-    #introScreen { position: fixed; top: 0; left: 0; z-index: 9999; width: 100vw; height: 100vh; background: linear-gradient(45deg, #0a0a0a, #1a1a1a, #0a0a0a); display: flex; justify-content: center; align-items: center; flex-direction: column; }
-    #introScreen video { max-width: 80vw; height: auto; border-radius: 10px; box-shadow: 0 0 30px rgba(255, 255, 0, 0.3); }
-    #introScreen button { margin-top: 20px; padding: 10px 20px; background: #222; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    #introScreen button:hover { background: #333; transform: scale(1.1); }
-    #downloadBtn, #resetBtn, #themeToggle { padding: 1rem 2rem; background: linear-gradient(45deg, #ffff00, #888); color: #000; border: none; border-radius: 10px; cursor: pointer; margin: 1rem; }
-    #downloadBtn:hover, #resetBtn:hover, #themeToggle:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 255, 0, 0.5); }
-    #notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ffff00; color: #000; padding: 10px 20px; border-radius: 5px; opacity: 0; transition: opacity 0.5s ease; }
-    #notification.show { opacity: 1; }
-    #playerContainer { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #111; padding: 10px; border-radius: 10px; box-shadow: 0 0 15px rgba(255, 255, 0, 0.5); display: none; z-index: 1000; }
-    #playerContainer iframe { border: none; border-radius: 5px; }
-    #playerContainer .close-player { position: absolute; top: 5px; right: 5px; color: #ffff00; font-size: 1.2rem; cursor: pointer; }
-    #modeSelectScreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(45deg, #0a0a0a, #1a1a1a, #0a0a0a); display: flex; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; pointer-events: auto; }
-    #modeSelectScreen h1 { color: #ffff00; text-shadow: 0 0 5px rgba(255, 255, 0, 0.5); }
-    #modeSelectScreen button { margin: 10px; padding: 15px 30px; background: #222; color: white; border: none; border-radius: 5px; cursor: pointer; transition: transform 0.3s ease, background 0.3s ease; pointer-events: auto; font-size: 1.2rem; }
-    #modeSelectScreen button:hover { background: #333; transform: scale(1.1); }
-    #duelsScreen { padding: 2rem; text-align: center; background: linear-gradient(135deg, #1a1a1a, #0a0a0a); position: relative; min-height: 100vh; }
-    #duelsSetup, #duelsGame, #lobbyScreen { background: rgba(17, 17, 17, 0.9); padding: 2rem; border-radius: 15px; box-shadow: 0 0 20px rgba(255, 255, 0, 0.4); max-width: 600px; margin: 2rem auto; }
-    #duelsSetup input, #duelsGame input, #lobbyScreen input { padding: 0.8rem; margin: 0.5rem; background: #222; color: white; border: 1px solid #444; border-radius: 8px; width: calc(100% - 2rem); transition: border-color 0.3s ease; }
-    #duelsSetup input:focus, #duelsGame input:focus, #lobbyScreen input:focus { border-color: #ffff00; outline: none; }
-    #duelsGame button, #lobbyScreen button, #duelsSetup button { padding: 0.8rem 1.5rem; background: linear-gradient(45deg, #ffff00, #ffcc00); color: #000; border: none; border-radius: 8px; cursor: pointer; margin: 0.5rem; font-weight: 600; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    #duelsGame button:hover, #lobbyScreen button:hover, #duelsSetup button:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 255, 0, 0.5); }
-    #playerInputs { display: flex; justify-content: center; margin-top: 1.5rem; }
-    #playerInputs div { background: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px rgba(255, 255, 0, 0.2); width: 300px; }
-    #countdown { font-size: 2rem; color: #ffff00; margin: 1rem 0; text-shadow: 0 0 5px rgba(255, 255, 0, 0.5); }
-    #timerBar { width: 100%; height: 10px; background: #444; border-radius: 5px; overflow: hidden; margin: 0.5rem 0; }
-    #timerProgress { height: 100%; background: linear-gradient(90deg, #ffff00, #ffcc00); transition: width 1s linear; }
-    #duelNotification { margin-top: 1rem; color: #ffff00; font-size: 1.2rem; text-shadow: 0 0 5px rgba(255, 255, 0, 0.5); opacity: 0; transition: opacity 0.5s ease; }
-    #duelNotification.show { opacity: 1; }
-    #lobbyPlayers { color: #ffff00; margin-top: 1rem; }
-    #lobbyPlayers p { background: #222; padding: 0.5rem; border-radius: 5px; margin: 0.3rem 0; }
-    #scoreBoard { display: flex; justify-content: space-between; margin: 1rem 0; font-size: 1.2rem; color: #ffff00; }
-    #scoreBoard div { background: #1a1a1a; padding: 0.5rem 1rem; border-radius: 8px; }
-    #updatesScreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0a0a0a; padding: 2rem; display: none; z-index: 9999; overflow-y: auto; }
-    #updatesScreen h1 { color: #ffff00; }
-    #updatesScreen ul { list-style-type: none; padding: 0; }
-    #updatesScreen li { margin: 1rem 0; }
-    #updatesScreen button { padding: 0.5rem 1rem; background: #222; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    #updatesScreen button:hover { background: #333; }
-    .beta-notice { color: #ff0000; font-size: 0.9rem; margin-top: 5px; }
-    footer { position: fixed; bottom: 0; width: 100%; text-align: center; padding: 10px; background: #0a0a0a; color: #888; font-size: 0.9rem; }
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-    .error-shake { animation: shake 0.3s ease; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strona w budowie</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: #FFD700;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Loader */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #FFD700;
+            border-top: 5px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Tekst z animacją pisania */
+        .typewriter h1 {
+            overflow: hidden;
+            border-right: 0.15em solid #FFD700;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: 0.15em;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #FFD700 }
+        }
+
+        /* Kontener na treści */
+        .content {
+            text-align: center;
+            z-index: 2;
+        }
+
+        .content p {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+
+        /* Particles */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+    </style>
 </head>
 <body>
-  <div id="particles-js"></div>
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+    </div>
 
-  <!-- Ekran wyboru trybu -->
-  <div id="modeSelectScreen">
-    <h1>Wybierz tryb gry</h1>
-    <button id="rankingBtn" onclick="startRanking()">Ranking</button>
-    <button id="duelsBtn" onclick="startDuels()">Duels <span class="beta-notice">(BETA)</span></button>
-    <button id="updatesBtn" onclick="showUpdates()">Aktualizacje</button>
-  </div>
+    <!-- Particles.js -->
+    <div id="particles-js"></div>
 
-  <!-- Ekran Ranking -->
-  <div id="rankingScreen" style="display: none;">
-    <div id="introScreen">
-      <video id="introVideo" src="wstep.mp4" autoplay controls playsinline></video>
-      <button onclick="skipIntro()">Pomiń film</button>
-    </div>
-    <div id="mainContent" style="display: none;">
-      <div class="container">
-        <div class="songs" id="songList"><h2>🎵 Lista Utworów</h2></div>
-        <div class="column" data-score="10"><h2>10/10</h2></div>
-        <div class="column" data-score="5"><h2>5/10</h2></div>
-        <div class="column" data-score="0"><h2>0/10</h2></div>
-      </div>
-      <button id="downloadBtn" onclick="downloadScreenshot()">📥 POBIERZ</button>
-      <button id="resetBtn" onclick="resetRanking()">🔄 RESET</button>
-      <button id="themeToggle" onclick="toggleTheme()">🌙 Tryb</button>
-      <div id="notification"></div>
-      <div id="playerContainer"><span class="close-player" onclick="closePlayer()">X</span></div>
-    </div>
-    <footer>© Copyright Dorian.S</footer>
-  </div>
-
-  <!-- Ekran Duels -->
-  <div id="duelsScreen" style="display: none;">
-    <div id="duelsSetup" style="display: none;">
-      <h2>Tryb Duels (BETA)</h2>
-      <p class="beta-notice">Wersja BETA - graj i zdobywaj punkty!</p>
-      <button onclick="createSession()">🎮 Stwórz nową sesję</button>
-      <button onclick="joinSession()">🔗 Dołącz do sesji</button>
-      <div id="sessionCode" style="display: none;">
-        <p>Twój ID sesji: <span id="generatedCode"></span></p>
-        <input type="text" id="playerName" placeholder="Twoja nazwa">
-        <button onclick="showLobby()">➡️ Przejdź do lobby</button>
-      </div>
-      <div id="joinCode" style="display: none;">
-        <input type="text" id="sessionInput" placeholder="Wprowadź ID sesji">
-        <input type="text" id="joinPlayerName" placeholder="Twoja nazwa">
-        <button onclick="joinLobby()">🔗 Dołącz do lobby</button>
-      </div>
-    </div>
-    <div id="lobbyScreen" style="display: none;">
-      <h2>Lobby</h2>
-      <p>ID sesji: <span id="lobbyCode"></span></p>
-      <div id="lobbyPlayers"></div>
-      <button onclick="startDuelFromLobby()">⚔️ Rozpocznij pojedynek</button>
-      <button onclick="resetDuel()">🚪 Wyjdź z lobby</button>
-    </div>
-    <div id="duelsGame" style="display: none;">
-      <h2 id="duelTitle"></h2>
-      <div id="scoreBoard">
-        <div id="player1Score">0 pkt</div>
-        <div id="player2Score">0 pkt</div>
-      </div>
-      <div id="roundInfo"></div>
-      <div id="countdown"></div>
-      <div id="timerBar"><div id="timerProgress"></div></div>
-      <button id="playBtn" style="display: none;" onclick="playDuelSong()">🎵 Odtwórz</button>
-      <div id="playerInputs">
-        <div>
-          <h3 id="player1Title"></h3>
-          <input type="text" id="player1Artist" placeholder="Artysta">
-          <button id="checkArtistBtn" onclick="checkArtist()">✅ Sprawdź artystę</button>
-          <input type="text" id="player1Title" placeholder="Tytuł" disabled>
-          <button id="checkTitleBtn" onclick="checkTitle()" style="display: none;">✅ Sprawdź tytuł</button>
+    <!-- Treść strony -->
+    <div class="content">
+        <div class="typewriter">
+            <h1>Strona w budowie</h1>
         </div>
-      </div>
-      <button id="play10sBtn" style="display: none;" onclick="play10sDuelSong()">🎵 Odtwórz 10 sekund</button>
-      <div id="duelNotification"></div>
-      <button id="nextRoundBtn" onclick="nextRound()">➡️ Następna runda</button>
-      <button onclick="resetDuel()">🔄 Nowa gra</button>
+        <p>Planowane wydanie: 01.05.2025</p>
+        <p>Zapraszamy wkrótce! Pracujemy nad czymś wyjątkowym.</p>
+        <p>Kontakt: kontakt@przyklad.pl</p>
     </div>
-  </div>
 
-  <!-- Ekran Aktualizacje -->
-  <div id="updatesScreen" style="display: none;">
-    <h1>Aktualizacje</h1>
-    <ul>
-      <li><strong>9 kwietnia 2025, 12:00</strong> - Dodano tryb Duels w wersji BETA z PeerJS, dwuetapowe sprawdzanie odpowiedzi (artysta, potem tytuł), naprawiono synchronizację odtwarzania piosenek, dodano zakładkę Aktualizacje.</li>
-      <li><strong>11 kwietnia 2025</strong> - Ulepszono tryb Duels: system rund i punktacji, więcej piosenek, dynamiczny design z animacjami, pasek postępu timera, efekty dźwiękowe, lepsza synchronizacja i UX. Naprawiono przyciski na ekranie głównym.</li>
-      <li><strong>11 kwietnia 2025, późniejsza aktualizacja</strong> - Zmieniono odtwarzanie z 7s na 10s, dodano automatyczne przejście do następnej rundy po 15s od 10s odtwarzania, synchronizacja przejścia po odgadnięciu przez jednego gracza, naprawiono blokadę tytułu po odgadnięciu artysty.</li>
-    </ul>
-    <button onclick="hideUpdates()">Wróć</button>
-  </div>
-
-  <audio id="dropSound" src="drop.mp3"></audio>
-  <audio id="correctSound" src="correct.mp3"></audio>
-  <audio id="wrongSound" src="wrong.mp3"></audio>
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-
-  <script>
-    particlesJS("particles-js", {
-      "particles": {
-        "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
-        "color": { "value": "#ffff00" },
-        "shape": { "type": "circle" },
-        "opacity": { "value": 0.5, "random": true },
-        "size": { "value": 3, "random": true },
-        "line_linked": { "enable": true, "distance": 150, "color": "#888", "opacity": 0.4, "width": 1 },
-        "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false, "out_mode": "out" }
-      },
-      "interactivity": {
-        "detect_on": "canvas",
-        "events": { "onhover": { "enable": true, "mode": "repulse" }, "onclick": { "enable": true, "mode": "push" } },
-        "modes": { "repulse": { "distance": 100, "duration": 0.4 }, "push": { "particles_nb": 4 } }
-      },
-      "retina_detect": true
-    });
-
-    // Przełączanie trybów
-    function startRanking() {
-      console.log("Kliknięto Ranking");
-      document.getElementById("modeSelectScreen").style.display = "none";
-      document.getElementById("rankingScreen").style.display = "block";
-      document.getElementById("duelsScreen").style.display = "none";
-      document.getElementById("updatesScreen").style.display = "none";
-    }
-
-    function startDuels() {
-      console.log("Kliknięto Duels");
-      document.getElementById("modeSelectScreen").style.display = "none";
-      document.getElementById("duelsScreen").style.display = "block";
-      document.getElementById("duelsSetup").style.display = "block";
-      document.getElementById("rankingScreen").style.display = "none";
-      document.getElementById("updatesScreen").style.display = "none";
-    }
-
-    function showUpdates() {
-      console.log("Kliknięto Aktualizacje");
-      document.getElementById("modeSelectScreen").style.display = "none";
-      document.getElementById("updatesScreen").style.display = "block";
-      document.getElementById("rankingScreen").style.display = "none";
-      document.getElementById("duelsScreen").style.display = "none";
-    }
-
-    function hideUpdates() {
-      console.log("Wróć do wyboru trybu");
-      document.getElementById("updatesScreen").style.display = "none";
-      document.getElementById("modeSelectScreen").style.display = "flex";
-    }
-
-    // Debugowanie przycisków
-    document.addEventListener("DOMContentLoaded", () => {
-      const buttons = document.querySelectorAll("#modeSelectScreen button");
-      buttons.forEach(btn => {
-        btn.addEventListener("click", () => console.log(`Kliknięto przycisk: ${btn.textContent}`));
-      });
-    });
-
-    function skipIntro() {
-      const introScreen = document.getElementById('introScreen');
-      const mainContent = document.getElementById('mainContent');
-      introScreen.style.opacity = '0';
-      setTimeout(() => {
-        introScreen.style.display = 'none';
-        mainContent.style.display = 'block';
-        mainContent.style.opacity = '0';
-        mainContent.style.transition = 'opacity 0.5s ease';
-        setTimeout(() => mainContent.style.opacity = '1', 10);
-      }, 300);
-    }
-    document.getElementById("introVideo").addEventListener("ended", skipIntro);
-
-    function downloadScreenshot() {
-      html2canvas(document.querySelector(".container")).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "ranking.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      });
-    }
-
-    function resetRanking() {
-      const songList = document.getElementById("songList");
-      document.querySelectorAll(".column .song").forEach(song => songList.appendChild(song));
-    }
-
-    function toggleTheme() {
-      document.body.classList.toggle("light-mode");
-    }
-
-    const songs = [
-      { title: "DOMEK W GÓRACH – Wrzecion, Ola Kędra", videoId: "yxEuNBZ4pwM" },
-      { title: "Sophia Loren – Tymek, Urbanski", videoId: "O-PjYv8Vgc0" }
-    ];
-
-    const songList = document.getElementById("songList");
-
-    function createSongElement(title, index, videoId = null) {
-      const div = document.createElement("div");
-      div.className = "song";
-      div.draggable = true;
-      div.textContent = title;
-      const playBtn = document.createElement("span");
-      playBtn.className = "play-btn";
-      playBtn.textContent = " ▶";
-      playBtn.onclick = () => playSong(title, videoId);
-      div.appendChild(playBtn);
-      div.style.animationDelay = `${index * 0.05}s`;
-      div.addEventListener("dragstart", e => {
-        e.dataTransfer.setData("text/plain", title);
-        e.dataTransfer.effectAllowed = "move";
-      });
-      return div;
-    }
-
-    songs.forEach((song, index) => songList.appendChild(createSongElement(song.title, index, song.videoId)));
-
-    document.querySelectorAll(".column").forEach(col => {
-      col.addEventListener("dragover", e => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = "move";
-        col.classList.add("drag-over");
-      });
-      col.addEventListener("dragleave", () => col.classList.remove("drag-over"));
-      col.addEventListener("drop", e => {
-        e.preventDefault();
-        const title = e.dataTransfer.getData("text/plain");
-        const songDiv = [...songList.children, ...document.querySelectorAll(".column .song")]
-          .find(d => d.textContent.includes(title));
-        if (songDiv) {
-          songDiv.classList.add("dropped");
-          col.appendChild(songDiv);
-          document.getElementById("dropSound").play();
-          col.classList.remove("drag-over");
-          setTimeout(() => songDiv.classList.remove("dropped"), 300);
-        }
-      });
-    });
-
-    function playSong(title, videoId) {
-      const playerContainer = document.getElementById("playerContainer");
-      playerContainer.innerHTML = '<span class="close-player" onclick="closePlayer()">X</span>';
-      const iframe = document.createElement("iframe");
-      iframe.width = "560";
-      iframe.height = "315";
-      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-      iframe.allow = "autoplay; encrypted-media";
-      playerContainer.appendChild(iframe);
-      playerContainer.style.display = "block";
-    }
-
-    function closePlayer() {
-      const playerContainer = document.getElementById("playerContainer");
-      playerContainer.style.display = "none";
-      playerContainer.innerHTML = '<span class="close-player" onclick="closePlayer()">X</span>';
-    }
-
-    // Duels - konfiguracja z PeerJS
-    let peer;
-    let conn;
-    let playerName = "";
-    let isHost = false;
-    let lobbyPlayers = [];
-    let sessionId = "";
-    let artistCorrect = false;
-    let scores = { player1: 0, player2: 0 };
-    let currentRound = 0;
-    let maxRounds = 3;
-    let currentSong = null;
-    let answerTime = null;
-    let secondPhaseTimer = null;
-
-    const duelSongs = [
-      { artist: "Vkie", title: "2025 freestyle", videoId: "TUTAJ_WSTAW_VIDEO_ID" },
-      { artist: "Tymek", title: "Sophia Loren", videoId: "O-PjYv8Vgc0" },
-      { artist: "Wrzecion", title: "Domek w górach", videoId: "yxEuNBZ4pwM" }
-    ];
-
-    function createSession() {
-      peer = new Peer({ debug: 2 });
-      peer.on('open', (id) => {
-        sessionId = id;
-        document.getElementById("sessionCode").style.display = "block";
-        document.getElementById("joinCode").style.display = "none";
-        document.getElementById("generatedCode").textContent = sessionId;
-        showDuelNotification("Sesja utworzona! Podaj ID graczowi.");
-      });
-      peer.on('error', (err) => {
-        console.error("Błąd PeerJS:", err.type, err);
-        let message = "Błąd połączenia. Spróbuj ponownie.";
-        if (err.type === 'peer-unavailable') message = "Gracz niedostępny. Sprawdź ID sesji.";
-        if (err.type === 'network') message = "Problem z siecią. Sprawdź połączenie.";
-        showDuelNotification(message);
-        resetDuel();
-      });
-      peer.on('connection', (connection) => {
-        conn = connection;
-        conn.on('open', () => {
-          showDuelNotification("Połączono z graczem!");
+    <!-- Skrypty -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Inicjalizacja Particles.js
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: '#FFD700' },
+                shape: { type: 'circle' },
+                opacity: { value: 0.5, random: false },
+                size: { value: 3, random: true },
+                line_linked: { enable: true, distance: 150, color: '#FFD700', opacity: 0.4, width: 1 },
+                move: { enable: true, speed: 6, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' }, resize: true },
+                modes: { grab: { distance: 400, line_linked: { opacity: 1 } }, bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 }, repulse: { distance: 200, duration: 0.4 }, push: { particles_nb: 4 }, remove: { particles_nb: 2 } }
+            },
+            retina_detect: true
         });
-        conn.on('data', handleData);
-        conn.on('close', () => {
-          showDuelNotification("Gracz rozłączył się!");
-          resetDuel();
+
+        // Ukrywanie loadera po załadowaniu
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 2000);
         });
-        conn.on('error', (err) => {
-          console.error("Błąd połączenia:", err);
-          showDuelNotification("Błąd połączenia z graczem!");
-        });
-      });
-    }
-
-    function joinSession() {
-      document.getElementById("sessionCode").style.display = "none";
-      document.getElementById("joinCode").style.display = "block";
-    }
-
-    function showLobby() {
-      playerName = document.getElementById("playerName").value.trim() || "Gracz 1";
-      isHost = true;
-      lobbyPlayers = [playerName];
-      document.getElementById("duelsSetup").style.display = "none";
-      document.getElementById("lobbyScreen").style.display = "block";
-      document.getElementById("lobbyCode").textContent = sessionId;
-      updateLobbyPlayers();
-    }
-
-    function joinLobby() {
-      const inputId = document.getElementById("sessionInput").value.trim();
-      playerName = document.getElementById("joinPlayerName").value.trim() || "Gracz 2";
-      if (!inputId) {
-        showDuelNotification("Wprowadź ID sesji!");
-        document.getElementById("sessionInput").classList.add("error-shake");
-        setTimeout(() => document.getElementById("sessionInput").classList.remove("error-shake"), 300);
-        return;
-      }
-      peer = new Peer();
-      peer.on('open', () => {
-        conn = peer.connect(inputId);
-        conn.on('open', () => {
-          conn.send({ type: 'join', name: playerName });
-          document.getElementById("duelsSetup").style.display = "none";
-          document.getElementById("lobbyScreen").style.display = "block";
-          document.getElementById("lobbyCode").textContent = inputId;
-          lobbyPlayers = [playerName];
-          isHost = false;
-          updateLobbyPlayers();
-        });
-        conn.on('data', handleData);
-        conn.on('close', () => {
-          showDuelNotification("Gospodarz rozłączył się!");
-          resetDuel();
-        });
-        conn.on('error', (err) => {
-          console.error("Błąd połączenia:", err);
-          showDuelNotification("Nie udało się połączyć z gospodarzem!");
-        });
-      });
-      peer.on('error', (err) => {
-        console.error("Błąd PeerJS:", err);
-        showDuelNotification("Błąd PeerJS! Sprawdź ID sesji.");
-      });
-    }
-
-    function handleData(data) {
-      if (data.type === 'join') {
-        lobbyPlayers.push(data.name);
-        updateLobbyPlayers();
-        if (isHost && conn) {
-          conn.send({ type: 'lobbyUpdate', players: lobbyPlayers });
-        }
-      } else if (data.type === 'lobbyUpdate') {
-        lobbyPlayers = data.players;
-        updateLobbyPlayers();
-      } else if (data.type === 'start') {
-        scores = { player1: 0, player2: 0 };
-        currentRound = 0;
-        startNextRound();
-      } else if (data.type === 'play') {
-        playSongLimited(currentSong.videoId, 3);
-      } else if (data.type === 'play10s') {
-        playSongLimited(currentSong.videoId, 10);
-      } else if (data.type === 'timer') {
-        document.getElementById("countdown").textContent = `Czas: ${data.time}s`;
-        document.getElementById("timerProgress").style.width = `${(data.time / 15) * 100}%`;
-      } else if (data.type === 'secondPhase') {
-        showDuelNotification("Czas minął! Możesz odtworzyć 10 sekund.");
-        document.getElementById("play10sBtn").style.display = "inline-block";
-        startSecondPhaseTimer(data.time);
-      } else if (data.type === 'artistCorrect') {
-        document.getElementById("correctSound").play();
-        showDuelNotification(`${data.player} zdobył 1 punkt za artystę!`);
-        updateScores(data.scores);
-      } else if (data.type === 'titleCorrect') {
-        document.getElementById("correctSound").play();
-        showDuelNotification(`${data.player} zdobył ${data.points} punkty za tytuł!`);
-        updateScores(data.scores);
-        disableInputs();
-        if (isHost && conn) {
-          conn.send({ type: 'nextRound' });
-        }
-        startNextRound();
-      } else if (data.type === 'nextRound') {
-        startNextRound();
-      } else if (data.type === 'gameEnd') {
-        showDuelNotification(data.message);
-        disableInputs();
-        document.getElementById("playBtn").style.display = "none";
-        document.getElementById("play10sBtn").style.display = "none";
-        document.getElementById("nextRoundBtn").style.display = "none";
-      }
-    }
-
-    function updateLobbyPlayers() {
-      const lobbyPlayersEl = document.getElementById("lobbyPlayers");
-      lobbyPlayersEl.innerHTML = "<h3>Gracze w lobby:</h3>";
-      lobbyPlayers.forEach(player => {
-        lobbyPlayersEl.innerHTML += `<p>${player}</p>`;
-      });
-    }
-
-    function updateScores(newScores) {
-      scores = newScores;
-      document.getElementById("player1Score").textContent = `${lobbyPlayers[0]}: ${scores.player1} pkt`;
-      document.getElementById("player2Score").textContent = `${lobbyPlayers[1]}: ${scores.player2} pkt`;
-    }
-
-    function startDuelFromLobby() {
-      if (lobbyPlayers.length < 2) {
-        showDuelNotification("Czekaj na drugiego gracza!");
-        return;
-      }
-      if (!isHost) {
-        showDuelNotification("Tylko gospodarz może rozpocząć pojedynek!");
-        return;
-      }
-      scores = { player1: 0, player2: 0 };
-      currentRound = 0;
-      if (conn) {
-        conn.send({ type: 'start' });
-      }
-      startNextRound();
-    }
-
-    function startNextRound() {
-      if (secondPhaseTimer) clearInterval(secondPhaseTimer);
-      currentRound++;
-      if (currentRound > maxRounds) {
-        const winner = scores.player1 > scores.player2 ? lobbyPlayers[0] : scores.player2 > scores.player1 ? lobbyPlayers[1] : "Remis";
-        const message = winner === "Remis" ? "Remis!" : `${winner} wygrał pojedynek!`;
-        showDuelNotification(message);
-        if (isHost && conn) {
-          conn.send({ type: 'gameEnd', message });
-        }
-        disableInputs();
-        document.getElementById("playBtn").style.display = "none";
-        document.getElementById("play10sBtn").style.display = "none";
-        document.getElementById("nextRoundBtn").style.display = "none";
-        return;
-      }
-      document.getElementById("lobbyScreen").style.display = "none";
-      document.getElementById("duelsGame").style.display = "block";
-      document.getElementById("duelTitle").textContent = `${lobbyPlayers[0]} vs ${lobbyPlayers[1]}`;
-      document.getElementById("player1Title").textContent = isHost ? lobbyPlayers[0] : lobbyPlayers[1];
-      document.getElementById("player1Score").textContent = `${lobbyPlayers[0]}: ${scores.player1} pkt`;
-      document.getElementById("player2Score").textContent = `${lobbyPlayers[1]}: ${scores.player2} pkt`;
-      document.getElementById("roundInfo").textContent = `Runda ${currentRound} z ${maxRounds}`;
-      document.getElementById("playBtn").style.display = "inline-block";
-      document.getElementById("nextRoundBtn").style.display = "inline-block";
-      document.getElementById("play10sBtn").style.display = "none";
-      document.getElementById("duelNotification").textContent = "";
-      document.getElementById("player1Artist").value = "";
-      document.getElementById("player1Title").value = "";
-      document.getElementById("player1Artist").disabled = false;
-      document.getElementById("player1Title").disabled = true;
-      document.getElementById("checkArtistBtn").style.display = "inline-block";
-      document.getElementById("checkTitleBtn").style.display = "none";
-      artistCorrect = false;
-      currentSong = duelSongs[Math.floor(Math.random() * duelSongs.length)];
-      answerTime = Date.now();
-      startTimer();
-    }
-
-    function startTimer() {
-      let timeLeft = 15;
-      document.getElementById("countdown").textContent = `Czas: ${timeLeft}s`;
-      document.getElementById("timerProgress").style.width = "100%";
-      const timer = setInterval(() => {
-        timeLeft--;
-        document.getElementById("countdown").textContent = `Czas: ${timeLeft}s`;
-        document.getElementById("timerProgress").style.width = `${(timeLeft / 15) * 100}%`;
-        if (isHost && conn) {
-          conn.send({ type: 'timer', time: timeLeft });
-        }
-        if (timeLeft <= 0) {
-          clearInterval(timer);
-          showDuelNotification("Czas minął! Możesz odtworzyć 10 sekund.");
-          document.getElementById("play10sBtn").style.display = "inline-block";
-          if (isHost && conn) {
-            conn.send({ type: 'secondPhase', time: 15 });
-          }
-          startSecondPhaseTimer(15);
-        }
-      }, 1000);
-    }
-
-    function startSecondPhaseTimer(timeLeft) {
-      document.getElementById("countdown").textContent = `Czas: ${timeLeft}s`;
-      document.getElementById("timerProgress").style.width = "100%";
-      secondPhaseTimer = setInterval(() => {
-        timeLeft--;
-        document.getElementById("countdown").textContent = `Czas: ${timeLeft}s`;
-        document.getElementById("timerProgress").style.width = `${(timeLeft / 15) * 100}%`;
-        if (isHost && conn) {
-          conn.send({ type: 'timer', time: timeLeft });
-        }
-        if (timeLeft <= 0) {
-          clearInterval(secondPhaseTimer);
-          if (isHost && conn) {
-            conn.send({ type: 'nextRound' });
-          }
-          startNextRound();
-        }
-      }, 1000);
-    }
-
-    function playDuelSong() {
-      if (isHost) {
-        playSongLimited(currentSong.videoId, 3);
-        if (conn) conn.send({ type: 'play' });
-      }
-    }
-
-    function play10sDuelSong() {
-      if (isHost) {
-        playSongLimited(currentSong.videoId, 10);
-        if (conn) conn.send({ type: 'play10s' });
-      }
-    }
-
-    function playSongLimited(videoId, duration) {
-      const playerContainer = document.getElementById("playerContainer");
-      playerContainer.innerHTML = '<span class="close-player" onclick="closePlayer()">X</span>';
-      const iframe = document.createElement("iframe");
-      iframe.width = "560";
-      iframe.height = "315";
-      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&start=0&end=${duration}`;
-      iframe.allow = "autoplay; encrypted-media";
-      playerContainer.appendChild(iframe);
-      playerContainer.style.display = "block";
-      setTimeout(() => closePlayer(), duration * 1000 + 500);
-    }
-
-    function checkArtist() {
-      const artistInput = document.getElementById("player1Artist").value.trim().toLowerCase();
-      const correctArtist = currentSong.artist.toLowerCase();
-      if (artistInput === correctArtist) {
-        document.getElementById("correctSound").play();
-        const timeTaken = (Date.now() - answerTime) / 1000;
-        scores[isHost ? "player1" : "player2"] += 1;
-        showDuelNotification("Poprawny artysta! Teraz wpisz tytuł.");
-        document.getElementById("player1Artist").disabled = true;
-        document.getElementById("checkArtistBtn").disabled = true; // Wyłącz przycisk "Sprawdź artystę"
-        document.getElementById("checkArtistBtn").style.display = "none";
-        document.getElementById("player1Title").disabled = false;
-        document.getElementById("checkTitleBtn").style.display = "inline-block";
-        artistCorrect = true;
-        if (conn) {
-          conn.send({ type: 'artistCorrect', player: playerName, scores });
-        }
-        updateScores(scores);
-      } else {
-        document.getElementById("wrongSound").play();
-        showDuelNotification("Zły artysta! Spróbuj jeszcze raz.");
-        document.getElementById("player1Artist").classList.add("error-shake");
-        setTimeout(() => document.getElementById("player1Artist").classList.remove("error-shake"), 300);
-      }
-    }
-
-    function checkTitle() {
-      const titleInput = document.getElementById("player1Title").value.trim().toLowerCase();
-      const correctTitle = currentSong.title.toLowerCase();
-      if (titleInput === correctTitle && artistCorrect) {
-        document.getElementById("correctSound").play();
-        const timeTaken = (Date.now() - answerTime) / 1000;
-        const points = timeTaken < 5 ? 3 : timeTaken < 10 ? 2 : 1;
-        scores[isHost ? "player1" : "player2"] += points;
-        showDuelNotification(`Poprawny tytuł! Zdobyłeś ${points} punkty!`);
-        disableInputs();
-        if (conn) {
-          conn.send({ type: 'titleCorrect', player: playerName, points, scores });
-        }
-        updateScores(scores);
-        if (isHost && conn) {
-          conn.send({ type: 'nextRound' });
-        }
-        startNextRound();
-      } else {
-        document.getElementById("wrongSound").play();
-        showDuelNotification("Zły tytuł! Spróbuj jeszcze raz.");
-        document.getElementById("player1Title").classList.add("error-shake");
-        setTimeout(() => document.getElementById("player1Title").classList.remove("error-shake"), 300);
-      }
-    }
-
-    function nextRound() {
-      if (isHost && conn) {
-        conn.send({ type: 'nextRound' });
-      }
-      startNextRound();
-    }
-
-    function disableInputs() {
-      document.getElementById("player1Artist").disabled = true;
-      document.getElementById("player1Title").disabled = true;
-      document.getElementById("checkArtistBtn").disabled = true;
-      document.getElementById("checkTitleBtn").disabled = true;
-      document.getElementById("checkArtistBtn").style.display = "none";
-      document.getElementById("checkTitleBtn").style.display = "none";
-    }
-
-    function showDuelNotification(message) {
-      const notification = document.getElementById("duelNotification");
-      notification.textContent = message;
-      notification.classList.add("show");
-      setTimeout(() => notification.classList.remove("show"), 5000);
-    }
-
-    function resetDuel() {
-      if (!confirm("Czy na pewno chcesz zakończyć grę?")) return;
-      if (secondPhaseTimer) clearInterval(secondPhaseTimer);
-      document.getElementById("duelsGame").style.display = "none";
-      document.getElementById("lobbyScreen").style.display = "none";
-      document.getElementById("duelsSetup").style.display = "block";
-      document.getElementById("playBtn").style.display = "none";
-      document.getElementById("play10sBtn").style.display = "none";
-      document.getElementById("nextRoundBtn").style.display = "none";
-      document.getElementById("duelNotification").textContent = "";
-      document.getElementById("player1Artist").value = "";
-      document.getElementById("player1Title").value = "";
-      document.getElementById("player1Artist").disabled = false;
-      document.getElementById("player1Title").disabled = true;
-      document.getElementById("checkArtistBtn").disabled = false;
-      document.getElementById("checkTitleBtn").disabled = false;
-      document.getElementById("checkArtistBtn").style.display = "inline-block";
-      document.getElementById("checkTitleBtn").style.display = "none";
-      closePlayer();
-      document.getElementById("sessionCode").style.display = "none";
-      document.getElementById("joinCode").style.display = "none";
-      lobbyPlayers = [];
-      scores = { player1: 0, player2: 0 };
-      currentRound = 0;
-      artistCorrect = false;
-      currentSong = null;
-      if (conn) {
-        conn.close();
-        conn = null;
-      }
-      if (peer) {
-        peer.destroy();
-        peer = null;
-      }
-    }
-  </script>
+    </script>
 </body>
 </html>
