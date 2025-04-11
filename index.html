@@ -51,16 +51,25 @@
     #playerContainer .close-player { position: absolute; top: 5px; right: 5px; color: #ffff00; font-size: 1.2rem; cursor: pointer; }
     #modeSelectScreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(45deg, #0a0a0a, #1a1a1a, #0a0a0a); display: flex; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; }
     #modeSelectScreen h1 { color: #ffff00; text-shadow: 0 0 5px rgba(255, 255, 0, 0.5); }
-    #modeSelectScreen button { margin: 10px; padding: 15px 30px; background: #222; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    #modeSelectScreen button { margin: 10px; padding: 15px 30px; background: #222; color: white; border: none; border-radius: 5px; cursor: pointer; transition: transform 0.3s ease, background 0.3s ease; }
     #modeSelectScreen button:hover { background: #333; transform: scale(1.1); }
-    #duelsScreen { padding: 2rem; text-align: center; }
-    #duelsSetup, #duelsGame, #lobbyScreen { background: #111; padding: 2rem; border-radius: 10px; box-shadow: 0 0 15px rgba(255, 255, 0, 0.3); }
-    #duelsSetup input, #duelsGame input, #lobbyScreen input { padding: 0.5rem; margin: 0.5rem; background: #222; color: white; border: 1px solid #444; border-radius: 5px; }
-    #duelsGame button, #lobbyScreen button { padding: 0.5rem 1rem; background: #ffff00; color: #000; border: none; border-radius: 5px; cursor: pointer; margin: 0.5rem; }
-    #playerInputs { display: flex; justify-content: space-around; margin-top: 1rem; }
-    #countdown { font-size: 2rem; color: #ffff00; margin: 1rem 0; }
-    #duelNotification { margin-top: 1rem; color: #ffff00; }
+    #duelsScreen { padding: 2rem; text-align: center; background: linear-gradient(135deg, #1a1a1a, #0a0a0a); position: relative; min-height: 100vh; }
+    #duelsSetup, #duelsGame, #lobbyScreen { background: rgba(17, 17, 17, 0.9); padding: 2rem; border-radius: 15px; box-shadow: 0 0 20px rgba(255, 255, 0, 0.4); max-width: 600px; margin: 2rem auto; }
+    #duelsSetup input, #duelsGame input, #lobbyScreen input { padding: 0.8rem; margin: 0.5rem; background: #222; color: white; border: 1px solid #444; border-radius: 8px; width: calc(100% - 2rem); transition: border-color 0.3s ease; }
+    #duelsSetup input:focus, #duelsGame input:focus, #lobbyScreen input:focus { border-color: #ffff00; outline: none; }
+    #duelsGame button, #lobbyScreen button, #duelsSetup button { padding: 0.8rem 1.5rem; background: linear-gradient(45deg, #ffff00, #ffcc00); color: #000; border: none; border-radius: 8px; cursor: pointer; margin: 0.5rem; font-weight: 600; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    #duelsGame button:hover, #lobbyScreen button:hover, #duelsSetup button:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 255, 0, 0.5); }
+    #playerInputs { display: flex; justify-content: center; margin-top: 1.5rem; }
+    #playerInputs div { background: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px rgba(255, 255, 0, 0.2); width: 300px; }
+    #countdown { font-size: 2rem; color: #ffff00; margin: 1rem 0; text-shadow: 0 0 5px rgba(255, 255, 0, 0.5); }
+    #timerBar { width: 100%; height: 10px; background: #444; border-radius: 5px; overflow: hidden; margin: 0.5rem 0; }
+    #timerProgress { height: 100%; background: linear-gradient(90deg, #ffff00, #ffcc00); transition: width 1s linear; }
+    #duelNotification { margin-top: 1rem; color: #ffff00; font-size: 1.2rem; text-shadow: 0 0 5px rgba(255, 255, 0, 0.5); opacity: 0; transition: opacity 0.5s ease; }
+    #duelNotification.show { opacity: 1; }
     #lobbyPlayers { color: #ffff00; margin-top: 1rem; }
+    #lobbyPlayers p { background: #222; padding: 0.5rem; border-radius: 5px; margin: 0.3rem 0; }
+    #scoreBoard { display: flex; justify-content: space-between; margin: 1rem 0; font-size: 1.2rem; color: #ffff00; }
+    #scoreBoard div { background: #1a1a1a; padding: 0.5rem 1rem; border-radius: 8px; }
     #updatesScreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0a0a0a; padding: 2rem; display: none; z-index: 9999; overflow-y: auto; }
     #updatesScreen h1 { color: #ffff00; }
     #updatesScreen ul { list-style-type: none; padding: 0; }
@@ -69,6 +78,8 @@
     #updatesScreen button:hover { background: #333; }
     .beta-notice { color: #ff0000; font-size: 0.9rem; margin-top: 5px; }
     footer { position: fixed; bottom: 0; width: 100%; text-align: center; padding: 10px; background: #0a0a0a; color: #888; font-size: 0.9rem; }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+    .error-shake { animation: shake 0.3s ease; }
   </style>
 </head>
 <body>
@@ -78,7 +89,7 @@
   <div id="modeSelectScreen">
     <h1>Wybierz tryb gry</h1>
     <button onclick="startRanking()">Ranking</button>
-    <button onclick="startDuels()">Duels <span class="beta-notice">(BETA - dużo błędów!)</span></button>
+    <button onclick="startDuels()">Duels <span class="beta-notice">(BETA)</span></button>
     <button onclick="showUpdates()">Aktualizacje</button>
   </div>
 
@@ -108,43 +119,50 @@
   <div id="duelsScreen" style="display: none;">
     <div id="duelsSetup" style="display: none;">
       <h2>Tryb Duels (BETA)</h2>
-      <p class="beta-notice">Wersja BETA - występuje dużo błędów!</p>
-      <button onclick="createSession()">Stwórz nową sesję</button>
-      <button onclick="joinSession()">Dołącz do sesji</button>
+      <p class="beta-notice">Wersja BETA - graj i zdobywaj punkty!</p>
+      <button onclick="createSession()">🎮 Stwórz nową sesję</button>
+      <button onclick="joinSession()">🔗 Dołącz do sesji</button>
       <div id="sessionCode" style="display: none;">
         <p>Twój ID sesji: <span id="generatedCode"></span></p>
         <input type="text" id="playerName" placeholder="Twoja nazwa">
-        <button onclick="showLobby()">Przejdź do lobby</button>
+        <button onclick="showLobby()">➡️ Przejdź do lobby</button>
       </div>
       <div id="joinCode" style="display: none;">
         <input type="text" id="sessionInput" placeholder="Wprowadź ID sesji">
         <input type="text" id="joinPlayerName" placeholder="Twoja nazwa">
-        <button onclick="joinLobby()">Dołącz do lobby</button>
+        <button onclick="joinLobby()">🔗 Dołącz do lobby</button>
       </div>
     </div>
     <div id="lobbyScreen" style="display: none;">
       <h2>Lobby</h2>
       <p>ID sesji: <span id="lobbyCode"></span></p>
       <div id="lobbyPlayers"></div>
-      <button onclick="startDuelFromLobby()">Rozpocznij pojedynek</button>
-      <button onclick="resetDuel()">Wyjdź z lobby</button>
+      <button onclick="startDuelFromLobby()">⚔️ Rozpocznij pojedynek</button>
+      <button onclick="resetDuel()">🚪 Wyjdź z lobby</button>
     </div>
     <div id="duelsGame" style="display: none;">
       <h2 id="duelTitle"></h2>
+      <div id="scoreBoard">
+        <div id="player1Score">0 pkt</div>
+        <div id="player2Score">0 pkt</div>
+      </div>
+      <div id="roundInfo"></div>
       <div id="countdown"></div>
-      <button id="playBtn" style="display: none;" onclick="playDuelSong()">Odtwórz</button>
+      <div id="timerBar"><div id="timerProgress"></div></div>
+      <button id="playBtn" style="display: none;" onclick="playDuelSong()">🎵 Odtwórz</button>
       <div id="playerInputs">
         <div>
           <h3 id="player1Title"></h3>
           <input type="text" id="player1Artist" placeholder="Artysta">
-          <button id="checkArtistBtn" onclick="checkArtist()">Sprawdź artystę</button>
+          <button id="checkArtistBtn" onclick="checkArtist()">✅ Sprawdź artystę</button>
           <input type="text" id="player1Title" placeholder="Tytuł" disabled>
-          <button id="checkTitleBtn" onclick="checkTitle()" style="display: none;">Sprawdź tytuł</button>
+          <button id="checkTitleBtn" onclick="checkTitle()" style="display: none;">✅ Sprawdź tytuł</button>
         </div>
       </div>
-      <button id="play7sBtn" style="display: none;" onclick="play7sDuelSong()">Odtwórz 7 sekund</button>
+      <button id="play7sBtn" style="display: none;" onclick="play7sDuelSong()">🎵 Odtwórz 7 sekund</button>
       <div id="duelNotification"></div>
-      <button onclick="resetDuel()">Nowa gra</button>
+      <button onclick="nextRound()">➡️ Następna runda</button>
+      <button onclick="resetDuel()">🔄 Nowa gra</button>
     </div>
   </div>
 
@@ -153,12 +171,14 @@
     <h1>Aktualizacje</h1>
     <ul>
       <li><strong>9 kwietnia 2025, 12:00</strong> - Dodano tryb Duels w wersji BETA z PeerJS, dwuetapowe sprawdzanie odpowiedzi (artysta, potem tytuł), naprawiono synchronizację odtwarzania piosenek, dodano zakładkę Aktualizacje.</li>
-      <li><strong>11 kwietnia 2025</strong> - Poprawiono stabilność trybu Duels: lepsza obsługa błędów PeerJS, synchronizacja timera i odtwarzania, ulepszone powiadomienia i UX.</li>
+      <li><strong>11 kwietnia 2025</strong> - Ulepszono tryb Duels: system rund i punktacji, więcej piosenek, dynamiczny design z animacjami, pasek postępu timera, efekty dźwiękowe, lepsza synchronizacja i UX.</li>
     </ul>
     <button onclick="hideUpdates()">Wróć</button>
   </div>
 
   <audio id="dropSound" src="drop.mp3"></audio>
+  <audio id="correctSound" src="correct.mp3"></audio>
+  <audio id="wrongSound" src="wrong.mp3"></audio>
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
@@ -310,6 +330,17 @@
     let lobbyPlayers = [];
     let sessionId = "";
     let artistCorrect = false;
+    let scores = { player1: 0, player2: 0 };
+    let currentRound = 0;
+    let maxRounds = 3;
+    let currentSong = null;
+    let answerTime = null;
+
+    const duelSongs = [
+      { artist: "Vkie", title: "2025 freestyle", videoId: "TUTAJ_WSTAW_VIDEO_ID" },
+      { artist: "Tymek", title: "Sophia Loren", videoId: "O-PjYv8Vgc0" },
+      { artist: "Wrzecion", title: "Domek w górach", videoId: "yxEuNBZ4pwM" }
+    ];
 
     function createSession() {
       peer = new Peer({ debug: 2 });
@@ -365,6 +396,8 @@
       playerName = document.getElementById("joinPlayerName").value.trim() || "Gracz 2";
       if (!inputId) {
         showDuelNotification("Wprowadź ID sesji!");
+        document.getElementById("sessionInput").classList.add("error-shake");
+        setTimeout(() => document.getElementById("sessionInput").classList.remove("error-shake"), 300);
         return;
       }
       peer = new Peer();
@@ -406,26 +439,36 @@
         lobbyPlayers = data.players;
         updateLobbyPlayers();
       } else if (data.type === 'start') {
-        document.getElementById("lobbyScreen").style.display = "none";
-        document.getElementById("duelsGame").style.display = "block";
-        document.getElementById("duelTitle").textContent = `${lobbyPlayers[0]} vs ${lobbyPlayers[1]}`;
-        document.getElementById("player1Title").textContent = isHost ? lobbyPlayers[0] : lobbyPlayers[1];
-        document.getElementById("playBtn").style.display = "block";
-        startTimer();
+        scores = { player1: 0, player2: 0 };
+        currentRound = 0;
+        startNextRound();
       } else if (data.type === 'play') {
-        playSongLimited(duelSong.videoId, 3);
+        playSongLimited(currentSong.videoId, 3);
       } else if (data.type === 'play7s') {
-        playSongLimited(duelSong.videoId, 7);
+        playSongLimited(currentSong.videoId, 7);
       } else if (data.type === 'timer') {
         document.getElementById("countdown").textContent = `Czas: ${data.time}s`;
+        document.getElementById("timerProgress").style.width = `${(data.time / 15) * 100}%`;
       } else if (data.type === 'timerEnd') {
         showDuelNotification("Czas minął! Możesz odtworzyć 7 sekund.");
-        document.getElementById("play7sBtn").style.display = "block";
+        document.getElementById("play7sBtn").style.display = "inline-block";
       } else if (data.type === 'artistCorrect') {
-        showDuelNotification(`${data.player} poprawnie podał artystę!`);
-      } else if (data.type === 'result') {
+        document.getElementById("correctSound").play();
+        showDuelNotification(`${data.player} zdobył 1 punkt za artystę!`);
+        updateScores(data.scores);
+      } else if (data.type === 'titleCorrect') {
+        document.getElementById("correctSound").play();
+        showDuelNotification(`${data.player} zdobył ${data.points} punkty za tytuł!`);
+        updateScores(data.scores);
+        disableInputs();
+      } else if (data.type === 'nextRound') {
+        startNextRound();
+      } else if (data.type === 'gameEnd') {
         showDuelNotification(data.message);
         disableInputs();
+        document.getElementById("playBtn").style.display = "none";
+        document.getElementById("play7sBtn").style.display = "none";
+        document.getElementById("nextRoundBtn").style.display = "none";
       }
     }
 
@@ -437,6 +480,12 @@
       });
     }
 
+    function updateScores(newScores) {
+      scores = newScores;
+      document.getElementById("player1Score").textContent = `${lobbyPlayers[0]}: ${scores.player1} pkt`;
+      document.getElementById("player2Score").textContent = `${lobbyPlayers[1]}: ${scores.player2} pkt`;
+    }
+
     function startDuelFromLobby() {
       if (lobbyPlayers.length < 2) {
         showDuelNotification("Czekaj na drugiego gracza!");
@@ -446,30 +495,67 @@
         showDuelNotification("Tylko gospodarz może rozpocząć pojedynek!");
         return;
       }
+      scores = { player1: 0, player2: 0 };
+      currentRound = 0;
       if (conn) {
         conn.send({ type: 'start' });
+      }
+      startNextRound();
+    }
+
+    function startNextRound() {
+      currentRound++;
+      if (currentRound > maxRounds) {
+        const winner = scores.player1 > scores.player2 ? lobbyPlayers[0] : scores.player2 > scores.player1 ? lobbyPlayers[1] : "Remis";
+        const message = winner === "Remis" ? "Remis!" : `${winner} wygrał pojedynek!`;
+        showDuelNotification(message);
+        if (isHost && conn) {
+          conn.send({ type: 'gameEnd', message });
+        }
+        disableInputs();
+        document.getElementById("playBtn").style.display = "none";
+        document.getElementById("play7sBtn").style.display = "none";
+        document.getElementById("nextRoundBtn").style.display = "none";
+        return;
       }
       document.getElementById("lobbyScreen").style.display = "none";
       document.getElementById("duelsGame").style.display = "block";
       document.getElementById("duelTitle").textContent = `${lobbyPlayers[0]} vs ${lobbyPlayers[1]}`;
       document.getElementById("player1Title").textContent = isHost ? lobbyPlayers[0] : lobbyPlayers[1];
-      document.getElementById("playBtn").style.display = "block";
+      document.getElementById("player1Score").textContent = `${lobbyPlayers[0]}: ${scores.player1} pkt`;
+      document.getElementById("player2Score").textContent = `${lobbyPlayers[1]}: ${scores.player2} pkt`;
+      document.getElementById("roundInfo").textContent = `Runda ${currentRound} z ${maxRounds}`;
+      document.getElementById("playBtn").style.display = "inline-block";
+      document.getElementById("nextRoundBtn").style.display = "inline-block";
+      document.getElementById("play7sBtn").style.display = "none";
+      document.getElementById("duelNotification").textContent = "";
+      document.getElementById("player1Artist").value = "";
+      document.getElementById("player1Title").value = "";
+      document.getElementById("player1Artist").disabled = false;
+      document.getElementById("player1Title").disabled = true;
+      document.getElementById("checkArtistBtn").style.display = "inline-block";
+      document.getElementById("checkTitleBtn").style.display = "none";
+      artistCorrect = false;
+      currentSong = duelSongs[Math.floor(Math.random() * duelSongs.length)];
+      answerTime = Date.now();
       startTimer();
     }
 
     function startTimer() {
       let timeLeft = 15;
       document.getElementById("countdown").textContent = `Czas: ${timeLeft}s`;
+      document.getElementById("timerProgress").style.width = "100%";
       const timer = setInterval(() => {
         timeLeft--;
         document.getElementById("countdown").textContent = `Czas: ${timeLeft}s`;
+        document.getElementById("timerProgress").style.width = `${(timeLeft / 15) * 100}%`;
         if (isHost && conn) {
           conn.send({ type: 'timer', time: timeLeft });
         }
         if (timeLeft <= 0) {
           clearInterval(timer);
           showDuelNotification("Czas minął! Możesz odtworzyć 7 sekund.");
-          document.getElementById("play7sBtn").style.display = "block";
+          document.getElementById("play7sBtn").style.display = "inline-block";
           if (isHost && conn) {
             conn.send({ type: 'timerEnd' });
           }
@@ -477,18 +563,16 @@
       }, 1000);
     }
 
-    const duelSong = { artist: "Vkie", title: "2025 freestyle", videoId: "TUTAJ_WSTAW_VIDEO_ID" };
-
     function playDuelSong() {
       if (isHost) {
-        playSongLimited(duelSong.videoId, 3);
+        playSongLimited(currentSong.videoId, 3);
         if (conn) conn.send({ type: 'play' });
       }
     }
 
     function play7sDuelSong() {
       if (isHost) {
-        playSongLimited(duelSong.videoId, 7);
+        playSongLimited(currentSong.videoId, 7);
         if (conn) conn.send({ type: 'play7s' });
       }
     }
@@ -508,8 +592,11 @@
 
     function checkArtist() {
       const artistInput = document.getElementById("player1Artist").value.trim().toLowerCase();
-      const correctArtist = duelSong.artist.toLowerCase();
+      const correctArtist = currentSong.artist.toLowerCase();
       if (artistInput === correctArtist) {
+        document.getElementById("correctSound").play();
+        const timeTaken = (Date.now() - answerTime) / 1000;
+        scores[isHost ? "player1" : "player2"] += 1;
         showDuelNotification("Poprawny artysta! Teraz wpisz tytuł.");
         document.getElementById("player1Artist").disabled = true;
         document.getElementById("checkArtistBtn").style.display = "none";
@@ -517,26 +604,44 @@
         document.getElementById("checkTitleBtn").style.display = "inline-block";
         artistCorrect = true;
         if (conn) {
-          conn.send({ type: 'artistCorrect', player: playerName });
+          conn.send({ type: 'artistCorrect', player: playerName, scores });
         }
+        updateScores(scores);
       } else {
+        document.getElementById("wrongSound").play();
         showDuelNotification("Zły artysta! Spróbuj jeszcze raz.");
+        document.getElementById("player1Artist").classList.add("error-shake");
+        setTimeout(() => document.getElementById("player1Artist").classList.remove("error-shake"), 300);
       }
     }
 
     function checkTitle() {
       const titleInput = document.getElementById("player1Title").value.trim().toLowerCase();
-      const correctTitle = duelSong.title.toLowerCase();
+      const correctTitle = currentSong.title.toLowerCase();
       if (titleInput === correctTitle && artistCorrect) {
-        const winner = isHost ? lobbyPlayers[0] : lobbyPlayers[1];
-        showDuelNotification(`${winner} wygrał!`);
+        document.getElementById("correctSound").play();
+        const timeTaken = (Date.now() - answerTime) / 1000;
+        const points = timeTaken < 5 ? 3 : timeTaken < 10 ? 2 : 1;
+        scores[isHost ? "player1" : "player2"] += points;
+        showDuelNotification(`Poprawny tytuł! Zdobyłeś ${points} punkty!`);
         disableInputs();
         if (conn) {
-          conn.send({ type: 'result', message: `${winner} wygrał!` });
+          conn.send({ type: 'titleCorrect', player: playerName, points, scores });
         }
+        updateScores(scores);
       } else {
+        document.getElementById("wrongSound").play();
         showDuelNotification("Zły tytuł! Spróbuj jeszcze raz.");
+        document.getElementById("player1Title").classList.add("error-shake");
+        setTimeout(() => document.getElementById("player1Title").classList.remove("error-shake"), 300);
       }
+    }
+
+    function nextRound() {
+      if (isHost && conn) {
+        conn.send({ type: 'nextRound' });
+      }
+      startNextRound();
     }
 
     function disableInputs() {
@@ -544,24 +649,23 @@
       document.getElementById("player1Title").disabled = true;
       document.getElementById("checkArtistBtn").style.display = "none";
       document.getElementById("checkTitleBtn").style.display = "none";
-      document.getElementById("playBtn").style.display = "none";
-      document.getElementById("play7sBtn").style.display = "none";
     }
 
     function showDuelNotification(message) {
       const notification = document.getElementById("duelNotification");
       notification.textContent = message;
-      notification.style.opacity = "1";
-      setTimeout(() => notification.style.opacity = "0", 5000);
+      notification.classList.add("show");
+      setTimeout(() => notification.classList.remove("show"), 5000);
     }
 
     function resetDuel() {
       if (!confirm("Czy na pewno chcesz zakończyć grę?")) return;
-      document.getElementById("duelsGame").style.display = "none";
+      document.getElementById(" mudou document.getElementById("duelsGame").style.display = "none";
       document.getElementById("lobbyScreen").style.display = "none";
       document.getElementById("duelsSetup").style.display = "block";
       document.getElementById("playBtn").style.display = "none";
       document.getElementById("play7sBtn").style.display = "none";
+      document.getElementById("nextRoundBtn").style.display = "none";
       document.getElementById("duelNotification").textContent = "";
       document.getElementById("player1Artist").value = "";
       document.getElementById("player1Title").value = "";
@@ -573,7 +677,10 @@
       document.getElementById("sessionCode").style.display = "none";
       document.getElementById("joinCode").style.display = "none";
       lobbyPlayers = [];
+      scores = { player1: 0, player2: 0 };
+      currentRound = 0;
       artistCorrect = false;
+      currentSong = null;
       if (conn) {
         conn.close();
         conn = null;
