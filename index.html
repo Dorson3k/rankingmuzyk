@@ -1,17 +1,9 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <title>🎶 Ranking Muzyk</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-  <script>
-    let isFirstTitle = true;
-    setInterval(() => {
-      document.title = isFirstTitle ? "🔧 | Made By Dorson" : "🎶 | Ranking Muzyk" : "🫡 | Sprawdź się!";
-      isFirstTitle = !isFirstTitle;
-    }, 5000);
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strona w budowie</title>
     <style>
         body {
             margin: 0;
@@ -28,7 +20,6 @@
             transition: background 1s ease;
         }
 
-        /* Subtelna animacja tła */
         body.loaded {
             background: radial-gradient(circle, #1a1a1a, #000);
         }
@@ -148,7 +139,12 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            opacity: 0.3; /* Mniej widoczne */
+            opacity: 0.3;
+        }
+
+        /* Audio control */
+        #background-music {
+            display: none; /* Ukryte, ale działa */
         }
     </style>
 </head>
@@ -161,6 +157,12 @@
     <!-- Particles.js -->
     <div id="particles-js"></div>
 
+    <!-- Audio -->
+    <audio id="background-music" loop>
+        <source src="VKIE - 2025 FREESTYLE prod SWIZZY XAWITO UFOSLIDE (videoo.info).mp3" type="audio/mpeg">
+        Twoja przeglądarka nie obsługuje odtwarzania audio.
+    </audio>
+
     <!-- Treść strony -->
     <div class="content" id="content">
         <div class="typewriter">
@@ -169,23 +171,22 @@
         <p>Planowane wydanie: 01.05.2025</p>
         <p>Tworzymy coś niesamowitego! Wróć wkrótce, by zobaczyć efekty.</p>
         <p class="contact">Kontakt: vxcode.kontakt@gmail.com</p>
-        <a href="vxcode.kontakt@gmail.com" class="cta-button">Napisz do nas</a>
+        <a href="mailto:vxcode.kontakt@gmail.com" class="cta-button">Napisz do nas</a>
     </div>
 
     <!-- Skrypty -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <script>
         // Inicjalizacja Particles.js
         particlesJS('particles-js', {
             particles: {
                 number: { value: 50, density: { enable: true, value_area: 1000 } },
-                color: { value: ['#FFD700', '#fff'] }, /* Dodano biały kolor */
+                color: { value: ['#FFD700', '#fff'] },
                 shape: { type: 'circle' },
                 opacity: { value: 0.3, random: true },
                 size: { value: 2, random: true },
                 line_linked: { enable: true, distance: 200, color: '#FFD700', opacity: 0.2, width: 1 },
-                move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false } /* Wolniejsze */
+                move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
             },
             interactivity: {
                 detect_on: 'canvas',
@@ -195,8 +196,14 @@
             retina_detect: true
         });
 
-        // Logika loadera i animacji tekstu
+        // Logika loadera, animacji tekstu i muzyki
         window.addEventListener('load', () => {
+            const music = document.getElementById('background-music');
+            music.volume = 0.4; // Cicha muzyka (20% głośności)
+            music.play().catch(error => {
+                console.log('Autoodtwarzanie zablokowane:', error);
+            });
+
             setTimeout(() => {
                 const loader = document.getElementById('loader');
                 const content = document.getElementById('content');
@@ -207,7 +214,7 @@
                 body.classList.add('loaded');
                 content.classList.add('visible');
                 typewriterText.classList.add('visible');
-            }, 2500); /* Loader widoczny przez 2.5s */
+            }, 2500);
         });
     </script>
 </body>
