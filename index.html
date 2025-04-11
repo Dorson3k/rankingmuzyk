@@ -49,9 +49,9 @@
     #playerContainer { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #111; padding: 10px; border-radius: 10px; box-shadow: 0 0 15px rgba(255, 255, 0, 0.5); display: none; z-index: 1000; }
     #playerContainer iframe { border: none; border-radius: 5px; }
     #playerContainer .close-player { position: absolute; top: 5px; right: 5px; color: #ffff00; font-size: 1.2rem; cursor: pointer; }
-    #modeSelectScreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(45deg, #0a0a0a, #1a1a1a, #0a0a0a); display: flex; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; }
+    #modeSelectScreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(45deg, #0a0a0a, #1a1a1a, #0a0a0a); display: flex; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; pointer-events: auto; }
     #modeSelectScreen h1 { color: #ffff00; text-shadow: 0 0 5px rgba(255, 255, 0, 0.5); }
-    #modeSelectScreen button { margin: 10px; padding: 15px 30px; background: #222; color: white; border: none; border-radius: 5px; cursor: pointer; transition: transform 0.3s ease, background 0.3s ease; }
+    #modeSelectScreen button { margin: 10px; padding: 15px 30px; background: #222; color: white; border: none; border-radius: 5px; cursor: pointer; transition: transform 0.3s ease, background 0.3s ease; pointer-events: auto; font-size: 1.2rem; }
     #modeSelectScreen button:hover { background: #333; transform: scale(1.1); }
     #duelsScreen { padding: 2rem; text-align: center; background: linear-gradient(135deg, #1a1a1a, #0a0a0a); position: relative; min-height: 100vh; }
     #duelsSetup, #duelsGame, #lobbyScreen { background: rgba(17, 17, 17, 0.9); padding: 2rem; border-radius: 15px; box-shadow: 0 0 20px rgba(255, 255, 0, 0.4); max-width: 600px; margin: 2rem auto; }
@@ -88,9 +88,9 @@
   <!-- Ekran wyboru trybu -->
   <div id="modeSelectScreen">
     <h1>Wybierz tryb gry</h1>
-    <button onclick="startRanking()">Ranking</button>
-    <button onclick="startDuels()">Duels <span class="beta-notice">(BETA)</span></button>
-    <button onclick="showUpdates()">Aktualizacje</button>
+    <button id="rankingBtn" onclick="startRanking()">Ranking</button>
+    <button id="duelsBtn" onclick="startDuels()">Duels <span class="beta-notice">(BETA)</span></button>
+    <button id="updatesBtn" onclick="showUpdates()">Aktualizacje</button>
   </div>
 
   <!-- Ekran Ranking -->
@@ -161,17 +161,17 @@
       </div>
       <button id="play7sBtn" style="display: none;" onclick="play7sDuelSong()">🎵 Odtwórz 7 sekund</button>
       <div id="duelNotification"></div>
-      <button onclick="nextRound()">➡️ Następna runda</button>
+      <button id="nextRoundBtn" onclick="nextRound()">➡️ Następna runda</button>
       <button onclick="resetDuel()">🔄 Nowa gra</button>
     </div>
   </div>
 
   <!-- Ekran Aktualizacje -->
-  <div id="updatesScreen">
+  <div id="updatesScreen" style="display: none;">
     <h1>Aktualizacje</h1>
     <ul>
       <li><strong>9 kwietnia 2025, 12:00</strong> - Dodano tryb Duels w wersji BETA z PeerJS, dwuetapowe sprawdzanie odpowiedzi (artysta, potem tytuł), naprawiono synchronizację odtwarzania piosenek, dodano zakładkę Aktualizacje.</li>
-      <li><strong>11 kwietnia 2025</strong> - Ulepszono tryb Duels: system rund i punktacji, więcej piosenek, dynamiczny design z animacjami, pasek postępu timera, efekty dźwiękowe, lepsza synchronizacja i UX.</li>
+      <li><strong>11 kwietnia 2025</strong> - Ulepszono tryb Duels: system rund i punktacji, więcej piosenek, dynamiczny design z animacjami, pasek postępu timera, efekty dźwiękowe, lepsza synchronizacja i UX. Naprawiono przyciski na ekranie głównym.</li>
     </ul>
     <button onclick="hideUpdates()">Wróć</button>
   </div>
@@ -203,25 +203,43 @@
 
     // Przełączanie trybów
     function startRanking() {
+      console.log("Kliknięto Ranking");
       document.getElementById("modeSelectScreen").style.display = "none";
       document.getElementById("rankingScreen").style.display = "block";
+      document.getElementById("duelsScreen").style.display = "none";
+      document.getElementById("updatesScreen").style.display = "none";
     }
 
     function startDuels() {
+      console.log("Kliknięto Duels");
       document.getElementById("modeSelectScreen").style.display = "none";
       document.getElementById("duelsScreen").style.display = "block";
       document.getElementById("duelsSetup").style.display = "block";
+      document.getElementById("rankingScreen").style.display = "none";
+      document.getElementById("updatesScreen").style.display = "none";
     }
 
     function showUpdates() {
+      console.log("Kliknięto Aktualizacje");
       document.getElementById("modeSelectScreen").style.display = "none";
       document.getElementById("updatesScreen").style.display = "block";
+      document.getElementById("rankingScreen").style.display = "none";
+      document.getElementById("duelsScreen").style.display = "none";
     }
 
     function hideUpdates() {
+      console.log("Wróć do wyboru trybu");
       document.getElementById("updatesScreen").style.display = "none";
       document.getElementById("modeSelectScreen").style.display = "flex";
     }
+
+    // Debugowanie przycisków
+    document.addEventListener("DOMContentLoaded", () => {
+      const buttons = document.querySelectorAll("#modeSelectScreen button");
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => console.log(`Kliknięto przycisk: ${btn.textContent}`));
+      });
+    });
 
     function skipIntro() {
       const introScreen = document.getElementById('introScreen');
@@ -660,7 +678,7 @@
 
     function resetDuel() {
       if (!confirm("Czy na pewno chcesz zakończyć grę?")) return;
-      document.getElementById(" mudou document.getElementById("duelsGame").style.display = "none";
+      document.getElementById("duelsGame").style.display = "none";
       document.getElementById("lobbyScreen").style.display = "none";
       document.getElementById("duelsSetup").style.display = "block";
       document.getElementById("playBtn").style.display = "none";
