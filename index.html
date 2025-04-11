@@ -24,7 +24,6 @@
             background: radial-gradient(circle, #1a1a1a, #000);
         }
 
-        /* Loader */
         .loader {
             position: fixed;
             top: 0;
@@ -58,7 +57,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Tekst z animacją pisania */
         .typewriter h1 {
             overflow: hidden;
             border-right: 0.15em solid #fff;
@@ -85,7 +83,6 @@
             50% { border-color: #fff }
         }
 
-        /* Kontener na treści */
         .content {
             text-align: center;
             z-index: 2;
@@ -115,7 +112,6 @@
             color: #FFD700;
         }
 
-        /* Przycisk CTA */
         .cta-button {
             display: inline-block;
             padding: 12px 24px;
@@ -133,7 +129,6 @@
             transform: scale(1.05);
         }
 
-        /* Particles */
         #particles-js {
             position: absolute;
             width: 100%;
@@ -142,28 +137,59 @@
             opacity: 0.3;
         }
 
-        /* Audio control */
-        #background-music {
-            display: none; /* Ukryte, ale działa */
+        #yt-player-container {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+        }
+
+        @media (max-width: 768px) {
+            .typewriter h1 {
+                font-size: 1.6em;
+            }
+
+            .content p {
+                font-size: 1em;
+            }
+
+            .cta-button {
+                padding: 10px 20px;
+                font-size: 0.95em;
+            }
+
+            body {
+                padding: 20px;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .loader .spinner {
+                width: 40px;
+                height: 40px;
+                border-width: 4px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Loader -->
     <div class="loader" id="loader">
         <div class="spinner"></div>
     </div>
 
-    <!-- Particles.js -->
     <div id="particles-js"></div>
 
-    <!-- Audio -->
-    <audio id="background-music" loop>
-        <source src="VKIE - 2025 FREESTYLE prod SWIZZY XAWITO UFOSLIDE (videoo.info).mp3" type="audio/mpeg">
-        Twoja przeglądarka nie obsługuje odtwarzania audio.
-    </audio>
+    <div id="yt-player-container">
+        <iframe id="yt-player"
+            width="0"
+            height="0"
+            src=""
+            frameborder="0"
+            allow="autoplay"
+            allowfullscreen>
+        </iframe>
+    </div>
 
-    <!-- Treść strony -->
+    <!-- Main content -->
     <div class="content" id="content">
         <div class="typewriter">
             <h1 id="typewriter-text">Strona w budowie</h1>
@@ -174,10 +200,10 @@
         <a href="mailto:vxcode.kontakt@gmail.com" class="cta-button">Napisz do nas</a>
     </div>
 
-    <!-- Skrypty -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
-        // Inicjalizacja Particles.js
+        const YOUTUBE_VIDEO_ID = "QpfMgcvz7to";
+
         particlesJS('particles-js', {
             particles: {
                 number: { value: 50, density: { enable: true, value_area: 1000 } },
@@ -191,29 +217,26 @@
             interactivity: {
                 detect_on: 'canvas',
                 events: { onhover: { enable: true, mode: 'grab' }, onclick: { enable: true, mode: 'push' }, resize: true },
-                modes: { grab: { distance: 300, line_linked: { opacity: 0.5 } }, bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 }, repulse: { distance: 200, duration: 0.4 }, push: { particles_nb: 3 }, remove: { particles_nb: 2 } }
+                modes: {
+                    grab: { distance: 300, line_linked: { opacity: 0.5 } },
+                    bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 },
+                    repulse: { distance: 200, duration: 0.4 },
+                    push: { particles_nb: 3 },
+                    remove: { particles_nb: 2 }
+                }
             },
             retina_detect: true
         });
 
-        // Logika loadera, animacji tekstu i muzyki
         window.addEventListener('load', () => {
-            const music = document.getElementById('background-music');
-            music.volume = 0.4; // Cicha muzyka (20% głośności)
-            music.play().catch(error => {
-                console.log('Autoodtwarzanie zablokowane:', error);
-            });
+            const iframe = document.getElementById('yt-player');
+            iframe.src = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&loop=1&playlist=${YOUTUBE_VIDEO_ID}&controls=0&mute=0`;
 
             setTimeout(() => {
-                const loader = document.getElementById('loader');
-                const content = document.getElementById('content');
-                const typewriterText = document.getElementById('typewriter-text');
-                const body = document.body;
-
-                loader.classList.add('hidden');
-                body.classList.add('loaded');
-                content.classList.add('visible');
-                typewriterText.classList.add('visible');
+                document.getElementById('loader').classList.add('hidden');
+                document.body.classList.add('loaded');
+                document.getElementById('content').classList.add('visible');
+                document.getElementById('typewriter-text').classList.add('visible');
             }, 2500);
         });
     </script>
