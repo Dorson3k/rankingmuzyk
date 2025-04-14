@@ -3,40 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strona w budowie</title>
+    <title>Strona w budowie - VXCode</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Montserrat:wght@600;800&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body {
+        :root {
+            --primary-color: #FFD700;
+            --secondary-color: #fff;
+            --accent-color: #00d4ff;
+            --bg-dark: #0a0a0a;
+            --bg-gradient: radial-gradient(circle at center, #1a1a1a, #000);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --glow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            background: #000;
-            color: #FFD700;
-            font-family: 'Roboto', Arial, sans-serif;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--primary-color);
+            font-family: 'Poppins', sans-serif;
             overflow-x: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
             min-height: 100vh;
-            transition: background 1s ease;
+            display: flex;
+            flex-direction: column;
+            transition: background 1.5s ease;
         }
 
         body.loaded {
-            background: radial-gradient(circle, #1a1a1a, #000);
+            background: var(--bg-gradient);
         }
 
+        /* Loader */
         .loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000;
+            background: var(--bg-dark);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 0.5s;
+            transition: opacity 0.8s ease;
         }
 
         .loader.hidden {
@@ -45,12 +60,12 @@
         }
 
         .spinner {
-            width: 60px;
-            height: 60px;
-            border: 6px solid #FFD700;
-            border-top: 6px solid #fff;
+            width: 100px;
+            height: 100px;
+            border: 10px solid var(--primary-color);
+            border-top: 10px solid var(--accent-color);
             border-radius: 50%;
-            animation: spin 1.2s ease-in-out infinite;
+            animation: spin 1s ease-in-out infinite, pulse 2s ease-in-out infinite;
         }
 
         @keyframes spin {
@@ -58,20 +73,136 @@
             100% { transform: rotate(360deg); }
         }
 
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 25px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        header.scrolled {
+            background: rgba(0, 0, 0, 0.95);
+            box-shadow: var(--shadow);
+        }
+
+        header.hidden {
+            transform: translateY(-100%);
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.2em;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-decoration: none;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--accent-color);
+            transition: width 0.4s ease;
+        }
+
+        .logo:hover::after {
+            width: 100%;
+        }
+
+        nav a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            margin-left: 35px;
+            font-weight: 500;
+            font-size: 1.2em;
+            position: relative;
+            transition: color 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-color);
+            transition: width 0.4s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+            text-shadow: var(--glow);
+        }
+
+        /* Hero Section */
+        .hero {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 30px;
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+        }
+
+        .content {
+            max-width: 1000px;
+            opacity: 0;
+            transform: translateY(60px);
+            transition: opacity 1.3s ease, transform 1.3s ease;
+        }
+
+        .content.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         .typewriter h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 4.5em;
+            font-weight: 800;
             overflow: hidden;
-            border-right: 0.15em solid #fff;
+            border-right: 0.25em solid var(--accent-color);
             white-space: nowrap;
             margin: 0 auto;
-            letter-spacing: 0.1em;
-            font-size: 2.5em;
+            letter-spacing: 0.08em;
             opacity: 0;
-            transition: opacity 0.3s;
+            text-shadow: 0 0 25px rgba(255, 215, 0, 0.7);
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .typewriter h1.visible {
             opacity: 1;
-            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+            animation: typing 4.5s steps(40, end), blink-caret 0.75s step-end infinite;
         }
 
         @keyframes typing {
@@ -81,84 +212,85 @@
 
         @keyframes blink-caret {
             from, to { border-color: transparent }
-            50% { border-color: #fff }
-        }
-
-        .content {
-            text-align: center;
-            z-index: 2;
-            transform: translateY(20px);
-            opacity: 0;
-            transition: opacity 1s ease, transform 1s ease;
-            padding: 20px;
-        }
-
-        .content.visible {
-            opacity: 1;
-            transform: translateY(0);
+            50% { border-color: var(--accent-color) }
         }
 
         .content p {
-            font-size: 1.3em;
-            margin: 15px 0;
-            color: #FFD700;
+            font-size: 1.6em;
+            margin: 30px 0;
+            color: var(--secondary-color);
+            line-height: 1.8;
+            font-weight: 400;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
-        .content p.contact {
-            color: #fff;
-            font-weight: bold;
-            transition: color 0.3s;
+        .countdown {
+            font-size: 2.2em;
+            font-weight: 400;
+            margin: 40px 0;
+            color: var(--primary-color);
+            text-shadow: var(--glow);
+            animation: fadeIn 1.2s ease-in;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 15px 30px;
+            border-radius: 50px;
         }
 
-        .content p.contact:hover {
-            color: #FFD700;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .cta-button {
             display: inline-block;
-            padding: 12px 24px;
-            background: #FFD700;
-            color: #000;
+            padding: 20px 40px;
+            background: var(--primary-color);
+            color: var(--bg-dark);
             text-decoration: none;
-            border-radius: 25px;
-            font-weight: bold;
-            margin-top: 20px;
-            transition: transform 0.3s, background 0.3s;
+            border-radius: 50px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1.2em;
+            margin: 15px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
         }
 
         .cta-button:hover {
-            background: #fff;
-            transform: scale(1.05);
+            background: var(--accent-color);
+            color: var(--secondary-color);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0, 212, 255, 0.5);
         }
 
-        #particles-js {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            opacity: 0.3;
-        }
-
-        #yt-player-container {
-            position: absolute;
-            left: -9999px;
-            top: -9999px;
-        }
-
-        .countdown {
-            font-size: 1.5em;
-            margin-top: 10px;
-            color: #FFD700;
-        }
-
+        /* About Section */
         .about {
-            margin-top: 50px;
-            max-width: 700px;
+            padding: 120px 30px;
+            max-width: 1100px;
+            margin: 0 auto;
             text-align: center;
-            color: #fff;
             opacity: 0;
-            transform: translateY(50px);
-            transition: all 1s ease;
+            transform: translateY(60px);
+            transition: all 1.2s ease 0.5s;
         }
 
         .about.visible {
@@ -167,149 +299,627 @@
         }
 
         .about h2 {
-            font-size: 2em;
-            margin-bottom: 10px;
-            color: #FFD700;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5em;
+            color: var(--primary-color);
+            margin-bottom: 40px;
+            position: relative;
+            text-transform: uppercase;
+        }
+
+        .about h2::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 2px;
         }
 
         .about p {
+            font-size: 1.4em;
+            color: var(--secondary-color);
+            line-height: 2;
+            font-weight: 400;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 120px 30px;
+            background: rgba(255, 255, 255, 0.06);
+            text-align: center;
+        }
+
+        .features h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5em;
+            color: var(--primary-color);
+            margin-bottom: 60px;
+            text-transform: uppercase;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 50px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            padding: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.15;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-20px);
+            box-shadow: 0 15px 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .feature-card i {
+            font-size: 3.5em;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            transition: transform 0.4s ease;
+        }
+
+        .feature-card:hover i {
+            transform: scale(1.3) rotate(5deg);
+        }
+
+        .feature-card h3 {
+            font-size: 2em;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .feature-card p {
             font-size: 1.2em;
-            line-height: 1.6em;
+            color: var(--secondary-color);
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Timeline Section */
+        .timeline {
+            padding: 120px 30px;
+            max-width: 1100px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .timeline h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5em;
+            color: var(--primary-color);
+            margin-bottom: 60px;
+            text-transform: uppercase;
+        }
+
+        .timeline-container {
+            position: relative;
+            padding: 30px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 50px 0;
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: all 0.9s ease;
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+            transform: translateX(60px);
+        }
+
+        .timeline-item:nth-child(even).visible {
+            transform: translateX(0);
+        }
+
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.12);
+            padding: 40px;
+            border-radius: 20px;
+            width: 45%;
+            text-align: left;
+            position: relative;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .timeline-content h3 {
+            font-size: 2em;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .timeline-content p {
+            font-size: 1.2em;
+            color: var(--secondary-color);
+            line-height: 1.7;
+        }
+
+        .timeline-date {
+            font-size: 1.4em;
+            color: var(--accent-color);
+            font-weight: 600;
+            width: 45%;
+            text-align: center;
+            text-shadow: var(--glow);
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
+            z-index: -1;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Newsletter Section */
+        .newsletter {
+            padding: 120px 30px;
+            text-align: center;
+            background: var(--bg-dark);
+            position: relative;
+            z-index: 10;
+        }
+
+        .newsletter h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5em;
+            color: var(--primary-color);
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        .newsletter p {
+            font-size: 1.5em;
+            color: var(--secondary-color);
+            margin-bottom: 50px;
+            font-weight: 400;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .newsletter-form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .newsletter-form input {
+            padding: 20px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--secondary-color);
+            transition: all 0.4s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .newsletter-form input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4);
+        }
+
+        .newsletter-form input::placeholder {
+            color: var(--secondary-color);
+            opacity: 0.8;
+        }
+
+        .newsletter-form .cta-button {
+            padding: 20px 50px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 80px 30px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            position: relative;
+            z-index: 10;
         }
 
         .socials {
-            margin-top: 30px;
-            color: #fff;
-            font-size: 1em;
-            z-index: 2;
+            margin-bottom: 40px;
         }
 
         .socials a {
-            color: #FFD700;
+            color: var(--primary-color);
             text-decoration: none;
-            margin: 0 10px;
-            transition: color 0.3s;
+            margin: 0 25px;
+            font-size: 2.5em;
+            transition: all 0.4s ease;
+            position: relative;
         }
 
         .socials a:hover {
-            color: #fff;
+            color: var(--accent-color);
+            transform: translateY(-8px);
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
         }
 
-        @media (max-width: 768px) {
+        footer p {
+            color: var(--secondary-color);
+            font-size: 1.2em;
+            margin: 15px 0;
+            font-weight: 400;
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.4s ease;
+        }
+
+        footer a:hover {
+            color: var(--accent-color);
+            text-shadow: var(--glow);
+        }
+
+        /* Particles */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            header {
+                padding: 20px 40px;
+            }
+
             .typewriter h1 {
-                font-size: 1.6em;
+                font-size: 3.5em;
             }
 
             .content p {
-                font-size: 1em;
+                font-size: 1.4em;
+            }
+
+            .countdown {
+                font-size: 1.8em;
+            }
+
+            .timeline-content {
+                width: 40%;
+            }
+
+            .timeline-date {
+                width: 40%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 25px;
+                padding: 25px;
+            }
+
+            nav a {
+                margin: 0 15px;
+                font-size: 1.1em;
+            }
+
+            .typewriter h1 {
+                font-size: 2.8em;
+            }
+
+            .content p {
+                font-size: 1.2em;
             }
 
             .cta-button {
+                padding: 18px 35px;
+                font-size: 1.1em;
+            }
+
+            .about h2,
+            .features h2,
+            .timeline h2,
+            .newsletter h2 {
+                font-size: 3em;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-item,
+            .timeline-item:nth-child(even) {
+                flex-direction: column;
+                text-align: center;
+                transform: translateX(0);
+            }
+
+            .timeline-content,
+            .timeline-date {
+                width: 100%;
+                margin: 15px 0;
+            }
+
+            .timeline-line {
+                left: 12px;
+                transform: translateX(0);
+                width: 5px;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .newsletter-form input,
+            .newsletter-form .cta-button {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 2em;
+            }
+
+            .typewriter h1 {
+                font-size: 2.2em;
+            }
+
+            .spinner {
+                width: 80px;
+                height: 80px;
+                border-width: 8px;
+            }
+
+            .countdown {
+                font-size: 1.6em;
                 padding: 10px 20px;
-                font-size: 0.95em;
-            }
-
-            .about h2 {
-                font-size: 1.5em;
-            }
-
-            .about p {
-                font-size: 1em;
-            }
-
-            .loader .spinner {
-                width: 40px;
-                height: 40px;
-                border-width: 4px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Loader -->
     <div class="loader" id="loader">
         <div class="spinner"></div>
     </div>
 
+    <!-- Particles -->
     <div id="particles-js"></div>
 
-    <div id="yt-player-container">
-        <iframe id="yt-player"
-            width="0"
-            height="0"
-            src=""
-            frameborder="0"
-            allow="autoplay"
-            allowfullscreen>
-        </iframe>
-    </div>
+    <!-- Header -->
+    <header id="header">
+        <a href="#" class="logo">RankingMuzyk</a>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#about">O nas</a>
+            <a href="#features">Funkcje</a>
+            <a href="#timeline">Plan</a>
+            <a href="#newsletter">Newsletter</a>
+        </nav>
+    </header>
 
-    <div class="content" id="content">
-        <div class="typewriter">
-            <h1 id="typewriter-text">Strona w budowie</h1>
+    <section class="hero" id="home">
+        <div class="content" id="content">
+            <div class="typewriter">
+                <h1 id="typewriter-text">Trwają Zamknięte Testy</h1>
+            </div>
+            <p>Planowane wydanie: 01.05.2025</p>
+            <div id="countdown" class="countdown"></div>
+            <p>Tworzymy innowacyjne rozwiązania, które rozwiną twoją znajomość muzyczną. Dołącz do nas!</p>
+            <div>
+                <a href="mailto:vxcode.kontakt@gmail.com" class="cta-button">Skontaktuj się</a>
+                <a href="#newsletter" class="cta-button">Zapisz się</a>
+            </div>
         </div>
-        <p>Planowane wydanie: 01.05.2025</p>
-        <div id="countdown" class="countdown"></div>
-        <p>Tworzymy coś niesamowitego! Wróć wkrótce, by zobaczyć efekty.</p>
-        <p class="contact"><i class="fas fa-envelope"></i> Kontakt: vxcode.kontakt@gmail.com</p>
-        <a href="mailto:vxcode.kontakt@gmail.com" class="cta-button">Napisz do nas</a>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <h2>Nasza Misja</h2>
+        <p>Tworzymy tryb dueli w którym trzeba jak najszybciej odgadnąć piosenkę rywalizując z nieznanym graczem bądź znajomym.</p>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <h2>Co nas wyróżnia</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-rocket"></i>
+                <h3>Innowacja</h3>
+                <p>Pierwsi na rynku w Polsce.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-paint-brush"></i>
+                <h3>Design</h3>
+                <p>Eleganckie projekty, które zachwycają użytkowników.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-users"></i>
+                <h3>Społeczność</h3>
+                <p>Zbudowana społeczność pasjonatów rywalizacji i muzyk.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Bezpieczeństwo</h3>
+                <p>Najwyższy poziom ochrony danych i prywatności użytkowników.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section class="timeline" id="timeline">
+        <h2>Nasza Droga</h2>
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+            <div class="timeline-item" id="timeline-item-1">
+                <div class="timeline-date">Grudzień 2024</div>
+                <div class="timeline-content">
+                    <h3>Początek Projektu</h3>
+                    <p>Rozpoczynamy prace nad naszą wizją innowacyjnej platformy.</p>
+                </div>
+            </div>
+            <div class="timeline-item" id="timeline-item-2">
+                <div class="timeline-date">Marzec 2025</div>
+                <div class="timeline-content">
+                    <h3>Pierwsze Testy</h3>
+                    <p>Uruchamiamy wewnętrzne testy kluczowych funkcji.</p>
+                </div>
+            </div>
+            <div class="timeline-item" id="timeline-item-3">
+                <div class="timeline-date">Maj 2025</div>
+                <div class="timeline-content">
+                    <h3>Premiera</h3>
+                    <p>Oficjalne uruchomienie platformy dla użytkowników na całym świecie!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter" id="newsletter">
+        <h2>Bądź na bieżąco</h2>
+        <p>Zapisując się do naszego newslettera, otrzymasz ekskluzywne aktualizacje i wczesny dostęp do naszych nowości!</p>
+        <div class="newsletter-form">
+            <input type="email" placeholder="Wpisz swój email" id="newsletter-email">
+            <button class="cta-button" id="newsletter-submit">Subskrybuj</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
         <div class="socials">
-            <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
-            <a href="https://github.com" target="_blank"><i class="fab fa-github"></i> GitHub</a>
-            <a href="https://discord.com" target="_blank"><i class="fab fa-discord"></i> Discord</a>
+            <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="https://twitter.com" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
         </div>
-    </div>
+        <p>© 2025 VXCode. Wszystkie prawa zastrzeżone.</p>
+    </footer>
 
-    <div class="about" id="about">
-        <h2>Kim jesteśmy?</h2>
-        <p>Jesteśmy zespołem kreatywnych programistów, designerów i wizjonerów. Naszą misją jest tworzenie innowacyjnych rozwiązań, które nie tylko działają — ale też inspirują.</p>
-    </div>
-
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
-        const YOUTUBE_VIDEO_ID = "QpfMgcvz7to";
-
+        // Particles.js Configuration
         particlesJS('particles-js', {
             particles: {
-                number: { value: 50, density: { enable: true, value_area: 1000 } },
-                color: { value: ['#FFD700', '#fff'] },
-                shape: { type: 'circle' },
-                opacity: { value: 0.3, random: true },
-                size: { value: 2, random: true },
-                line_linked: { enable: true, distance: 200, color: '#FFD700', opacity: 0.2, width: 1 },
-                move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
+                number: { value: 120, density: { enable: true, value_area: 800 } },
+                color: { value: ['#FFD700', '#00d4ff', '#ffffff', '#ff4d4d'] },
+                shape: { type: ['circle', 'triangle', 'star'], polygon: { nb_sides: 5 } },
+                opacity: { value: 0.6, random: true },
+                size: { value: 5, random: true },
+                line_linked: {
+                    enable: true,
+                    distance: 130,
+                    color: '#FFD700',
+                    opacity: 0.5,
+                    width: 1.8
+                },
+                move: {
+                    enable: true,
+                    speed: 5,
+                    direction: 'none',
+                    random: true,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false
+                }
             },
             interactivity: {
                 detect_on: 'canvas',
-                events: { onhover: { enable: true, mode: 'grab' }, onclick: { enable: true, mode: 'push' }, resize: true },
-                modes: {
-                    grab: { distance: 300, line_linked: { opacity: 0.5 } },
-                    bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 },
-                    repulse: { distance: 200, duration: 0.4 },
-                    push: { particles_nb: 3 },
-                    remove: { particles_nb: 2 }
+                events: {
+                    onhover: { enable: false },
+                    onclick: { enable: false },
+                    resize: true
                 }
             },
             retina_detect: true
         });
 
+        // Loader and Animations
         window.addEventListener('load', () => {
-            const iframe = document.getElementById('yt-player');
-            iframe.src = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&loop=1&playlist=${YOUTUBE_VIDEO_ID}&controls=0&mute=0`;
+            const loader = document.getElementById('loader');
+            const content = document.getElementById('content');
+            const typewriter = document.getElementById('typewriter-text');
+            const about = document.getElementById('about');
+            const timelineItems = document.querySelectorAll('.timeline-item');
 
             setTimeout(() => {
-                document.getElementById('loader').classList.add('hidden');
+                loader.classList.add('hidden');
                 document.body.classList.add('loaded');
-                document.getElementById('content').classList.add('visible');
-                document.getElementById('typewriter-text').classList.add('visible');
-                document.getElementById('about').classList.add('visible');
-            }, 2500);
+                content.classList.add('visible');
+                typewriter.classList.add('visible');
+                about.classList.add('visible');
+
+                // Timeline animation
+                timelineItems.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.classList.add('visible');
+                    }, index * 400);
+                });
+            }, 2000);
         });
 
         // Countdown
         const releaseDate = new Date("2025-05-01T00:00:00").getTime();
-        const countdownEl = document.getElementById("countdown");
+        const countdownEl = document.getElementById('countdown');
 
-        setInterval(() => {
+        function updateCountdown() {
             const now = new Date().getTime();
             const distance = releaseDate - now;
 
@@ -324,7 +934,61 @@
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
             countdownEl.innerHTML = `Premiera za: ${days}d ${hours}h ${minutes}m ${seconds}s`;
-        }, 1000);
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+        // Header Scroll Effect
+        let lastScroll = 0;
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            if (currentScroll > lastScroll && currentScroll > 150) {
+                header.classList.add('hidden');
+            } else {
+                header.classList.remove('hidden');
+            }
+            header.classList.toggle('scrolled', currentScroll > 50);
+            lastScroll = currentScroll;
+        });
+
+        // Newsletter Form
+        document.getElementById('newsletter-submit').addEventListener('click', (e) => {
+            e.preventDefault();
+            const emailInput = document.getElementById('newsletter-email');
+            const email = emailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (email && emailRegex.test(email)) {
+                alert('Dziękujemy za zapisanie się do newslettera!');
+                emailInput.value = '';
+            } else {
+                alert('Proszę wpisać poprawny adres email.');
+            }
+        });
+
+        // Ensure social links are clickable
+        document.querySelectorAll('.socials a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html>
