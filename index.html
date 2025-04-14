@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Strona w budowie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         body {
             margin: 0;
@@ -11,12 +12,12 @@
             background: #000;
             color: #FFD700;
             font-family: 'Roboto', Arial, sans-serif;
-            overflow: hidden;
+            overflow-x: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
             flex-direction: column;
+            min-height: 100vh;
             transition: background 1s ease;
         }
 
@@ -89,6 +90,7 @@
             transform: translateY(20px);
             opacity: 0;
             transition: opacity 1s ease, transform 1s ease;
+            padding: 20px;
         }
 
         .content.visible {
@@ -143,6 +145,56 @@
             top: -9999px;
         }
 
+        .countdown {
+            font-size: 1.5em;
+            margin-top: 10px;
+            color: #FFD700;
+        }
+
+        .about {
+            margin-top: 50px;
+            max-width: 700px;
+            text-align: center;
+            color: #fff;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s ease;
+        }
+
+        .about.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .about h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #FFD700;
+        }
+
+        .about p {
+            font-size: 1.2em;
+            line-height: 1.6em;
+        }
+
+        .socials {
+            margin-top: 30px;
+            color: #fff;
+            font-size: 1em;
+            z-index: 2;
+        }
+
+        .socials a {
+            color: #FFD700;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+
+        .socials a:hover {
+            color: #fff;
+        }
+
         @media (max-width: 768px) {
             .typewriter h1 {
                 font-size: 1.6em;
@@ -157,10 +209,12 @@
                 font-size: 0.95em;
             }
 
-            body {
-                padding: 20px;
-                height: auto;
-                min-height: 100vh;
+            .about h2 {
+                font-size: 1.5em;
+            }
+
+            .about p {
+                font-size: 1em;
             }
 
             .loader .spinner {
@@ -189,17 +243,27 @@
         </iframe>
     </div>
 
-    <!-- Main content -->
     <div class="content" id="content">
         <div class="typewriter">
             <h1 id="typewriter-text">Strona w budowie</h1>
         </div>
         <p>Planowane wydanie: 01.05.2025</p>
+        <div id="countdown" class="countdown"></div>
         <p>Tworzymy coś niesamowitego! Wróć wkrótce, by zobaczyć efekty.</p>
-        <p class="contact">Kontakt: vxcode.kontakt@gmail.com</p>
+        <p class="contact"><i class="fas fa-envelope"></i> Kontakt: vxcode.kontakt@gmail.com</p>
         <a href="mailto:vxcode.kontakt@gmail.com" class="cta-button">Napisz do nas</a>
+        <div class="socials">
+            <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
+            <a href="https://github.com" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+            <a href="https://discord.com" target="_blank"><i class="fab fa-discord"></i> Discord</a>
+        </div>
     </div>
-    
+
+    <div class="about" id="about">
+        <h2>Kim jesteśmy?</h2>
+        <p>Jesteśmy zespołem kreatywnych programistów, designerów i wizjonerów. Naszą misją jest tworzenie innowacyjnych rozwiązań, które nie tylko działają — ale też inspirują.</p>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
         const YOUTUBE_VIDEO_ID = "QpfMgcvz7to";
@@ -237,8 +301,30 @@
                 document.body.classList.add('loaded');
                 document.getElementById('content').classList.add('visible');
                 document.getElementById('typewriter-text').classList.add('visible');
+                document.getElementById('about').classList.add('visible');
             }, 2500);
         });
+
+        // Countdown
+        const releaseDate = new Date("2025-05-01T00:00:00").getTime();
+        const countdownEl = document.getElementById("countdown");
+
+        setInterval(() => {
+            const now = new Date().getTime();
+            const distance = releaseDate - now;
+
+            if (distance <= 0) {
+                countdownEl.innerHTML = "Już dostępne!";
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            countdownEl.innerHTML = `Premiera za: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }, 1000);
     </script>
 </body>
 </html>
