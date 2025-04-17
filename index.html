@@ -290,8 +290,6 @@
             max-width: 900px;
             margin: 0 auto;
             text-align: center;
-            opacity: 0.5;
-            width: 30%;
         }
 
         .timeline h2 {
@@ -365,10 +363,11 @@
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            width: 3px;
+            width: 20%;
             height: 100%;
             background: var(--primary-color);
             z-index: 1; /* Line behind content */
+            opacity: 20%;
         }
 
         /* Newsletter Section */
@@ -553,7 +552,7 @@
     <section class="hero" id="home">
         <div class="content" id="content">
             <h1>RankingMuzyk</h1>
-            <p>Planowane wydanie: 22.04.2025, 12:00</p>
+            <p>Planowane wydanie: 22.05.2025, 12:00</p>
             <div id="countdown" class="countdown"></div>
             <p>Innowacyjna platforma do rywalizacji muzycznej. Dołącz do nas!</p>
             <div>
@@ -685,7 +684,7 @@
         });
 
         // Countdown
-        const releaseDate = new Date("2025-04-22T12:00:00").getTime();
+        const releaseDate = new Date("2025-05-22T12:00:00").getTime();
         const countdownEl = document.getElementById('countdown');
 
         function updateCountdown() {
