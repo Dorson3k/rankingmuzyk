@@ -1,50 +1,778 @@
-<!DOCTYPE html>
-<html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SongGuesser</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <link href="style.css" rel="stylesheet">
-</head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
-    <div id="app" class="w-full max-w-4xl p-6">
-        <!-- Ekran logowania/rejestracji -->
-        <div id="auth-screen" class="flex flex-col items-center">
-            <h1 class="text-4xl font-bold mb-6 animate-pulse">SongGuesser</h1>
-            <input id="username" type="text" placeholder="Nazwa użytkownika" class="p-2 mb-4 w-64 bg-gray-800 rounded">
-            <button id="register-btn" class="bg-green-500 hover:bg-green-600 p-2 rounded mb-2 w-64 transition-transform transform hover:scale-105">Zarejestruj</button>
-            <button id="login-btn" class="bg-blue-500 hover:bg-blue-600 p-2 rounded w-64 transition-transform transform hover:scale-105">Zaloguj</button>
-        </div>
-
-        <!-- Ekran główny -->
-        <div id="main-screen" class="hidden flex flex-col items-center">
-            <h1 class="text-3xl font-bold mb-4">Witaj, <span id="user-display"></span>!</h1>
-            <p class="mb-4">ELO: <span id="elo-display"></span> | Mecze: <span id="matches-display"></span></p>
-            <button id="solo-btn" class="bg-purple-500 hover:bg-purple-600 p-3 rounded mb-4 w-64 transition-transform transform hover:scale-105">Tryb Solo</button>
-            <button id="duel-btn" class="bg-red-500 hover:bg-red-600 p-3 rounded mb-4 w-64 transition-transform transform hover:scale-105">Tryb Duel</button>
-            <button id="download-acc-btn" class="bg-gray-500 hover:bg-gray-600 p-2 rounded w-64 transition-transform transform hover:scale-105">Pobierz dane konta</button>
-        </div>
-
-        <!-- Ekran gry (Solo/Duel) -->
-        <div id="game-screen" class="hidden flex flex-col items-center">
-            <h2 id="game-mode" class="text-2xl font-bold mb-4"></h2>
-            <audio id="song-player" controls class="mb-4"></audio>
-            <div id="options" class="grid grid-cols-2 gap-4 mb-4"></div>
-            <button id="next-btn" class="bg-green-500 hover:bg-green-600 p-2 rounded w-64 transition-transform transform hover:scale-105 hidden">Następna</button>
-            <div id="result" class="text-xl mb-4"></div>
-        </div>
-
-        <!-- Ekran duelu (łączenie) -->
-        <div id="duel-screen" class="hidden flex flex-col items-center">
-            <h2 class="text-2xl font-bold mb-4">Tryb Duel</h2>
-            <p class="mb-4">Twój kod sesji: <span id="session-id"></span></p>
-            <input id="opponent-session" type="text" placeholder="Wprowadź kod przeciwnika" class="p-2 mb-4 w-64 bg-gray-800 rounded">
-            <button id="connect-duel-btn" class="bg-red-500 hover:bg-red-600 p-2 rounded w-64 transition-transform transform hover:scale-105">Połącz</button>
-        </div>
-    </div>
-    <script src="songs.js"></script>
-    <script src="script.js"></script>
-</body>
-</html>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>RankingMuzyk - Strona w budowie</title>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Montserrat:wght@600&display=swap" rel="stylesheet">
+     <style>
+         :root {
+             --primary-color: #1E90FF;
+             --secondary-color: #FFFFFF;
+             --bg-dark: #121212;
+             --accent-color: #FFD700;
+             --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+         }
+ 
+         * {
+             margin: 0;
+             padding: 0;
+             box-sizing: border-box;
+             scroll-behavior: smooth;
+         }
+ 
+         body {
+             background: var(--bg-dark);
+             color: var(--secondary-color);
+             font-family: 'Roboto', sans-serif;
+             min-height: 100vh;
+             line-height: 1.6;
+         }
+ 
+         /* Loader */
+         .loader {
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+             background: var(--bg-dark);
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             z-index: 9999;
+             transition: opacity 0.5s ease;
+         }
+ 
+         .loader.hidden {
+             opacity: 0;
+             pointer-events: none;
+         }
+ 
+         .spinner {
+             width: 50px;
+             height: 50px;
+             border: 5px solid var(--primary-color);
+             border-top: 5px solid var(--accent-color);
+             border-radius: 50%;
+             animation: spin 1s linear infinite;
+         }
+ 
+         @keyframes spin {
+             0% { transform: rotate(0deg); }
+             100% { transform: rotate(360deg); }
+         }
+ 
+         /* Header */
+         header {
+             position: fixed;
+             top: 0;
+             width: 100%;
+             padding: 20px 40px;
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             background: rgba(0, 0, 0, 0.8);
+             z-index: 1000;
+         }
+ 
+         header.scrolled {
+             box-shadow: var(--shadow);
+         }
+ 
+         .logo {
+             font-family: 'Montserrat', sans-serif;
+             font-size: 1.8em;
+             font-weight: 600;
+             color: var(--primary-color);
+             text-decoration: none;
+         }
+ 
+         nav a {
+             color: var(--secondary-color);
+             text-decoration: none;
+             margin-left: 25px;
+             font-size: 1em;
+             font-weight: 400;
+             transition: color 0.3s ease;
+         }
+ 
+         nav a:hover {
+             color: var(--primary-color);
+         }
+ 
+         /* Hero Section */
+         .hero {
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             text-align: center;
+             padding: 0 20px;
+             min-height: 100vh;
+         }
+ 
+         .content {
+             max-width: 800px;
+             opacity: 0;
+             transform: translateY(30px);
+             transition: opacity 0.8s ease, transform 0.8s ease;
+         }
+ 
+         .content.visible {
+             opacity: 1;
+             transform: translateY(0);
+         }
+ 
+         .content h1 {
+             font-family: 'Montserrat', sans-serif;
+             font-size: 3em;
+             color: var(--secondary-color);
+             margin-bottom: 20px;
+         }
+ 
+         .content p {
+             font-size: 1.2em;
+             margin: 20px 0;
+             color: var(--secondary-color);
+             opacity: 0.9;
+         }
+ 
+         .countdown {
+             font-size: 1.5em;
+             font-weight: 400;
+             margin: 30px 0;
+             color: var(--accent-color);
+             background: rgba(255, 215, 0, 0.1);
+             padding: 10px 20px;
+             border-radius: 10px;
+         }
+ 
+         .cta-button {
+             display: inline-block;
+             padding: 12px 30px;
+             background: var(--primary-color);
+             color: var(--secondary-color);
+             text-decoration: none;
+             border-radius: 5px;
+             font-size: 1em;
+             font-weight: 600;
+             margin: 10px;
+             transition: background 0.3s ease, transform 0.3s ease;
+         }
+ 
+         .cta-button:hover {
+             background: var(--accent-color);
+             transform: translateY(-3px);
+         }
+ 
+         /* About Section */
+         .about {
+             padding: 80px 20px;
+             max-width: 900px;
+             margin: 0 auto;
+             text-align: center;
+         }
+ 
+         .about h2 {
+             font-family: 'Montserrat', sans-serif;
+             font-size: 2.5em;
+             color: var(--primary-color);
+             margin-bottom: 20px;
+         }
+ 
+         .about p {
+             font-size: 1.1em;
+             color: var(--secondary-color);
+             max-width: 700px;
+             margin: 0 auto;
+         }
+ 
+         /* Features Section */
+         .features {
+             padding: 80px 20px;
+             background: rgba(255, 255, 255, 0.05);
+             text-align: center;
+         }
+ 
+         .features h2 {
+             font-family: 'Montserrat', sans-serif;
+             font-size: 2.5em;
+             color: var(--primary-color);
+             margin-bottom: 40px;
+         }
+ 
+         .features-container {
+             position: relative;
+             max-width: 1000px;
+             margin: 0 auto;
+             overflow: hidden;
+         }
+ 
+         .features-grid {
+             display: flex;
+             flex-wrap: nowrap;
+             gap: 20px;
+             overflow-x: auto;
+             scroll-behavior: smooth;
+             padding-bottom: 20px;
+             scrollbar-width: none; /* Firefox */
+         }
+ 
+         .features-grid::-webkit-scrollbar {
+             display: none; /* Chrome, Safari, Edge */
+         }
+ 
+         .feature-card {
+             flex: 0 0 250px;
+             padding: 30px;
+             background: rgba(255, 255, 255, 0.08);
+             border-radius: 10px;
+             transition: transform 0.3s ease;
+         }
+ 
+         .feature-card:hover {
+             transform: translateY(-10px);
+         }
+ 
+         .feature-card i {
+             font-size: 2.5em;
+             color: var(--primary-color);
+             margin-bottom: 20px;
+         }
+ 
+         .feature-card h3 {
+             font-size: 1.5em;
+             color: var(--secondary-color);
+             margin-bottom: 10px;
+         }
+ 
+         .feature-card p {
+             font-size: 1em;
+             color: var(--secondary-color);
+             opacity: 0.8;
+         }
+ 
+         .arrow {
+             position: absolute;
+             top: 50%;
+             transform: translateY(-50%);
+             background: var(--primary-color);
+             color: var(--secondary-color);
+             border: none;
+             border-radius: 50%;
+             width: 40px;
+             height: 40px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             cursor: pointer;
+             font-size: 1.2em;
+             transition: background 0.3s ease;
+             z-index: 10;
+         }
+ 
+         .arrow:hover {
+             background: var(--accent-color);
+         }
+ 
+         .arrow.left {
+             left: 10px;
+         }
+ 
+         .arrow.right {
+             right: 10px;
+         }
+ 
+         /* Timeline Section */
+         .timeline {
+             padding: 80px 20px;
+             max-width: 900px;
+             margin: 0 auto;
+             text-align: center;
+         }
+ 
+         .timeline h2 {
+             font-family: 'Montserrat', sans-serif;
+             font-size: 2.5em;
+             color: var(--primary-color);
+             margin-bottom: 40px;
+         }
+ 
+         .timeline-container {
+             position: relative;
+             padding: 20px 0;
+         }
+ 
+         .timeline-item {
+             display: flex;
+             align-items: center;
+             margin: 30px 0;
+             opacity: 0;
+             transform: translateX(-30px);
+             transition: all 0.6s ease;
+             position: relative;
+             z-index: 2; /* Content above line */
+         }
+ 
+         .timeline-item.visible {
+             opacity: 1;
+             transform: translateX(0);
+         }
+ 
+         .timeline-item:nth-child(even) {
+             flex-direction: row-reverse;
+             transform: translateX(30px);
+         }
+ 
+         .timeline-item:nth-child(even).visible {
+             transform: translateX(0);
+         }
+ 
+         .timeline-content {
+             background: rgba(255, 255, 255, 0.08);
+             padding: 20px;
+             border-radius: 10px;
+             width: 45%;
+             text-align: left;
+             position: relative;
+             z-index: 2; /* Ensure content is above line */
+         }
+ 
+         .timeline-content h3 {
+             font-size: 1.5em;
+             color: var(--primary-color);
+             margin-bottom: 10px;
+         }
+ 
+         .timeline-content p {
+             font-size: 1em;
+             color: var(--secondary-color);
+         }
+ 
+         .timeline-date {
+             font-size: 1.2em;
+             color: var(--accent-color);
+             width: 45%;
+             text-align: center;
+             position: relative;
+             z-index: 2; /* Ensure date is above line */
+         }
+ 
+         /* Newsletter Section */
+         .newsletter {
+             padding: 80px 20px;
+             text-align: center;
+             background: var(--bg-dark);
+         }
+ 
+         .newsletter h2 {
+             font-family: 'Montserrat', sans-serif;
+             font-size: 2.5em;
+             color: var(--primary-color);
+             margin-bottom: 20px;
+         }
+ 
+         .newsletter p {
+             font-size: 1.2em;
+             color: var(--secondary-color);
+             margin-bottom: 30px;
+             max-width: 600px;
+             margin-left: auto;
+             margin-right: auto;
+         }
+ 
+         .newsletter-form {
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             gap: 15px;
+             max-width: 600px;
+             margin: 0 auto;
+         }
+ 
+         .newsletter-form input {
+             padding: 12px 20px;
+             border: none;
+             border-radius: 5px;
+             font-size: 1em;
+             width: 100%;
+             max-width: 400px;
+             background: rgba(255, 255, 255, 0.1);
+             color: var(--secondary-color);
+         }
+ 
+         .newsletter-form input:focus {
+             outline: none;
+             background: rgba(255, 255, 255, 0.2);
+         }
+ 
+         .newsletter-form input::placeholder {
+             color: var(--secondary-color);
+             opacity: 0.7;
+         }
+ 
+         /* Footer */
+         footer {
+             padding: 40px 20px;
+             text-align: center;
+             background: rgba(0, 0, 0, 0.7);
+         }
+ 
+         .socials {
+             margin-bottom: 20px;
+         }
+ 
+         .socials a {
+             color: var(--primary-color);
+             margin: 0 15px;
+             font-size: 1.8em;
+             transition: color 0.3s ease;
+         }
+ 
+         .socials a:hover {
+             color: var(--accent-color);
+         }
+ 
+         footer p {
+             font-size: 1em;
+             color: var(--secondary-color);
+             opacity: 0.8;
+         }
+ 
+         /* Responsive */
+         @media (max-width: 768px) {
+             header {
+                 flex-direction: column;
+                 gap: 15px;
+                 padding: 15px;
+             }
+ 
+             nav a {
+                 margin: 0 10px;
+             }
+ 
+             .content h1 {
+                 font-size: 2.2em;
+             }
+ 
+             .content p {
+                 font-size: 1em;
+             }
+ 
+             .about h2,
+             .features h2,
+             .timeline h2,
+             .newsletter h2 {
+                 font-size: 2em;
+             }
+ 
+             .arrow {
+                 display: none; /* Hide arrows on mobile, use touch scrolling */
+             }
+ 
+             .timeline-item,
+             .timeline-item:nth-child(even) {
+                 flex-direction: column;
+                 text-align: center;
+                 transform: translateX(0);
+             }
+ 
+             .timeline-content,
+             .timeline-date {
+                 width: 100%;
+                 margin: 10px 0;
+             }
+ 
+             .timeline-line {
+                 left: 10px;
+                 width: 3px;
+             }
+ 
+             .newsletter-form {
+                 flex-direction: column;
+             }
+ 
+             .newsletter-form input,
+             .newsletter-form .cta-button {
+                 width: 100%;
+                 max-width: 100%;
+             }
+         }
+ 
+         @media (max-width: 480px) {
+             .logo {
+                 font-size: 1.5em;
+             }
+ 
+             .content h1 {
+                 font-size: 1.8em;
+             }
+ 
+             .countdown {
+                 font-size: 1.2em;
+             }
+ 
+             .feature-card {
+                 flex: 0 0 200px;
+             }
+         }
+     </style>
+     <title>SongGuesser</title>
+     <script src="https://cdn.tailwindcss.com"></script>
+     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+     <link href="style.css" rel="stylesheet">
+ </head>
+ <body>
+     <!-- Loader -->
+     <div class="loader" id="loader">
+         <div class="spinner"></div>
+     </div>
+ 
+     <!-- Header -->
+     <header id="header">
+         <a href="#" class="logo">RankingMuzyk</a>
+         <nav>
+             <a href="#home">Home</a>
+             <a href="#about">O nas</a>
+             <a href="#features">Funkcje</a>
+             <a href="#timeline">Plan</a>
+             <a href="#newsletter">Newsletter</a>
+         </nav>
+     </header>
+ 
+     <!-- Hero Section -->
+     <section class="hero" id="home">
+         <div class="content" id="content">
+             <h1>RankingMuzyk</h1>
+             <p>Planowane wydanie: 25.04.2025, 12:00</p>
+             <div id="countdown" class="countdown"></div>
+             <p>Innowacyjna platforma do rywalizacji muzycznej. Dołącz do nas!</p>
+             <div>
+                 <a href="mailto:vxcode.kontakt@gmail.com" class="cta-button">Skontaktuj się</a>
+                 <a href="#newsletter" class="cta-button">Zapisz się</a>
+             </div>
+ <body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+     <div id="app" class="w-full max-w-4xl p-6">
+         <!-- Ekran logowania/rejestracji -->
+         <div id="auth-screen" class="flex flex-col items-center">
+             <h1 class="text-4xl font-bold mb-6 animate-pulse">SongGuesser</h1>
+             <input id="username" type="text" placeholder="Nazwa użytkownika" class="p-2 mb-4 w-64 bg-gray-800 rounded">
+             <button id="register-btn" class="bg-green-500 hover:bg-green-600 p-2 rounded mb-2 w-64 transition-transform transform hover:scale-105">Zarejestruj</button>
+             <button id="login-btn" class="bg-blue-500 hover:bg-blue-600 p-2 rounded w-64 transition-transform transform hover:scale-105">Zaloguj</button>
+         </div>
+     </section>
+ 
+     <!-- About Section -->
+     <section class="about" id="about">
+         <h2>Nasza Misja</h2>
+         <p>Tworzymy platformę z trybem dueli, w którym gracze rywalizują, odgadując piosenki w czasie rzeczywistym – solo lub ze znajomymi.</p>
+     </section>
+ 
+     <!-- Features Section -->
+     <section class="features" id="features">
+         <h2>Co nas wyróżnia</h2>
+         <div class="features-container">
+             <button class="arrow left" onclick="scrollFeatures(-300)">&lt;</button>
+             <div class="features-grid" id="features-grid">
+                 <div class="feature-card">
+                     <i class="fas fa-rocket"></i>
+                     <h3>Innowacja</h3>
+                     <p>Pierwsza taka platforma w Polsce.</p>
+                 </div>
+                 <div class="feature-card">
+                     <i class="fas fa-paint-brush"></i>
+                     <h3>Design</h3>
+                     <p>Prosty i elegancki interfejs użytkownika.</p>
+                 </div>
+                 <div class="feature-card">
+                     <i class="fas fa-users"></i>
+                     <h3>Społeczność</h3>
+                     <p>Budujemy społeczność fanów muzyki i rywalizacji.</p>
+                 </div>
+                 <div class="feature-card">
+                     <i class="fas fa-shield-alt"></i>
+                     <h3>Bezpieczeństwo</h3>
+                     <p>Pełna ochrona danych użytkowników.</p>
+                 </div>
+                 <div class="feature-card">
+                     <i class="fas fa-music"></i>
+                     <h3>Różnorodność</h3>
+                     <p>Bogata biblioteka utworów z różnych gatunków.</p>
+                 </div>
+                 <div class="feature-card">
+                     <i class="fas fa-trophy"></i>
+                     <h3>Rankingi</h3>
+                     <p>Śledź swoje postępy i rywalizuj o czołowe miejsca.</p>
+                 </div>
+                 <div class="feature-card">
+                     <i class="fas fa-mobile-alt"></i>
+                     <h3>Dostępność</h3>
+                     <p>Graj na komputerze lub urządzeniu mobilnym.</p>
+                 </div>
+             </div>
+             <button class="arrow right" onclick="scrollFeatures(300)">&gt;</button>
+         </div>
+     </section>
+ 
+     <!-- Timeline Section -->
+     <section class="timeline" id="timeline">
+         <h2>Nasza Droga</h2>
+         <div class="timeline-container">
+             <div class="timeline-line"></div>
+             <div class="timeline-item" id="timeline-item-1">
+                 <div class="timeline-date">Grudzień 2024</div>
+                 <div class="timeline-content">
+                     <h3>Początek Projektu</h3>
+                     <p>Rozpoczynamy prace nad platformą.</p>
+                 </div>
+             </div>
+             <div class="timeline-item" id="timeline-item-2">
+                 <div class="timeline-date">Marzec 2025</div>
+                 <div class="timeline-content">
+                     <h3>Pierwsze Testy</h3>
+                     <p>Testujemy kluczowe funkcje.</p>
+                 </div>
+             </div>
+             <div class="timeline-item" id="timeline-item-3">
+                 <div class="timeline-date">Maj 2025</div>
+                 <div class="timeline-content">
+                     <h3>Premiera</h3>
+                     <p>Oficjalny start platformy!</p>
+                 </div>
+             </div>
+         <!-- Ekran główny -->
+         <div id="main-screen" class="hidden flex flex-col items-center">
+             <h1 class="text-3xl font-bold mb-4">Witaj, <span id="user-display"></span>!</h1>
+             <p class="mb-4">ELO: <span id="elo-display"></span> | Mecze: <span id="matches-display"></span></p>
+             <button id="solo-btn" class="bg-purple-500 hover:bg-purple-600 p-3 rounded mb-4 w-64 transition-transform transform hover:scale-105">Tryb Solo</button>
+             <button id="duel-btn" class="bg-red-500 hover:bg-red-600 p-3 rounded mb-4 w-64 transition-transform transform hover:scale-105">Tryb Duel</button>
+             <button id="download-acc-btn" class="bg-gray-500 hover:bg-gray-600 p-2 rounded w-64 transition-transform transform hover:scale-105">Pobierz dane konta</button>
+         </div>
+     </section>
+ 
+     <!-- Newsletter Section -->
+     <section class="newsletter" id="newsletter">
+         <h2>Bądź na bieżąco</h2>
+         <p>Zapisując się do newslettera, otrzymasz aktualizacje i wczesny dostęp do nowości!</p>
+         <div class="newsletter-form">
+             <input type="email" placeholder="Wpisz swój email" id="newsletter-email">
+             <button class="cta-button" id="newsletter-submit">Subskrybuj</button>
+         <!-- Ekran gry (Solo/Duel) -->
+         <div id="game-screen" class="hidden flex flex-col items-center">
+             <h2 id="game-mode" class="text-2xl font-bold mb-4"></h2>
+             <audio id="song-player" controls class="mb-4"></audio>
+             <div id="options" class="grid grid-cols-2 gap-4 mb-4"></div>
+             <button id="next-btn" class="bg-green-500 hover:bg-green-600 p-2 rounded w-64 transition-transform transform hover:scale-105 hidden">Następna</button>
+             <div id="result" class="text-xl mb-4"></div>
+         </div>
+     </section>
+ 
+     <!-- Footer -->
+     <footer>
+         <div class="socials">
+             <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+             <a href="https://twitter.com" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+         <!-- Ekran duelu (łączenie) -->
+         <div id="duel-screen" class="hidden flex flex-col items-center">
+             <h2 class="text-2xl font-bold mb-4">Tryb Duel</h2>
+             <p class="mb-4">Twój kod sesji: <span id="session-id"></span></p>
+             <input id="opponent-session" type="text" placeholder="Wprowadź kod przeciwnika" class="p-2 mb-4 w-64 bg-gray-800 rounded">
+             <button id="connect-duel-btn" class="bg-red-500 hover:bg-red-600 p-2 rounded w-64 transition-transform transform hover:scale-105">Połącz</button>
+         </div>
+         <p>© 2025 RankingMuzyk. Wszystkie prawa zastrzeżone.</p>
+     </footer>
+ 
+     <!-- Scripts -->
+     <script>
+         // Loader and Animations
+         window.addEventListener('load', () => {
+             const loader = document.getElementById('loader');
+             const content = document.getElementById('content');
+             const about = document.getElementById('about');
+             const timelineItems = document.querySelectorAll('.timeline-item');
+ 
+             setTimeout(() => {
+                 loader.classList.add('hidden');
+                 content.classList.add('visible');
+                 about.classList.add('visible');
+                 timelineItems.forEach((item, index) => {
+                     setTimeout(() => {
+                         item.classList.add('visible');
+                     }, index * 200);
+                 });
+             }, 1000);
+         });
+ 
+         // Countdown
+         const releaseDate = new Date("2025-04-25T12:00:00").getTime();
+         const countdownEl = document.getElementById('countdown');
+ 
+         function updateCountdown() {
+             const now = new Date().getTime();
+             const distance = releaseDate - now;
+ 
+             if (distance <= 0) {
+                 countdownEl.innerHTML = "Już dostępne!";
+                 return;
+             }
+ 
+             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+ 
+             countdownEl.innerHTML = `Premiera za: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+         }
+ 
+         updateCountdown();
+         setInterval(updateCountdown, 1000);
+ 
+         // Header Scroll Effect
+         let lastScroll = 0;
+         const header = document.getElementById('header');
+         window.addEventListener('scroll', () => {
+             const currentScroll = window.pageYOffset;
+             header.classList.toggle('scrolled', currentScroll > 50);
+             lastScroll = currentScroll;
+         });
+ 
+         // Features Scroll
+         function scrollFeatures(direction) {
+             const grid = document.getElementById('features-grid');
+             grid.scrollBy({ left: direction, behavior: 'smooth' });
+         }
+ 
+         // Newsletter Form
+         document.getElementById('newsletter-submit').addEventListener('click', (e) => {
+             e.preventDefault();
+             const emailInput = document.getElementById('newsletter-email');
+             const email = emailInput.value.trim();
+             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+ 
+             if (email && emailRegex.test(email)) {
+                 alert('Dziękujemy za zapisanie się do newslettera!');
+                 emailInput.value = '';
+             } else {
+                 alert('Proszę wpisać poprawny adres email.');
+             }
+         });
+ 
+         // Smooth scroll for nav links
+         document.querySelectorAll('nav a').forEach(anchor => {
+             anchor.addEventListener('click', function(e) {
+                 e.preventDefault();
+                 const targetId = this.getAttribute('href').substring(1);
+                 const targetElement = document.getElementById(targetId);
+                 if (targetElement) {
+                     window.scrollTo({
+                         top: targetElement.offsetTop - 80,
+                         behavior: 'smooth'
+                     });
+                 }
+             });
+         });
+     </script>
+     </div>
+     <script src="songs.js"></script>
+     <script src="script.js"></script>
+ </body>
+ </html>
