@@ -1,265 +1,767 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projekt Zamknięty</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            margin: 0;
-            color: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 2rem;
-            max-width: 800px;
-            position: relative;
-            z-index: 1;
-        }
-        .title {
-            font-size: 5.5rem;
-            font-weight: 900;
-            background: linear-gradient(90deg, #ff0000, #b91c1c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: slideIn 1s ease-out;
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-        }
-        .subtitle {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #ff0000;
-            margin-bottom: 1.5rem;
-            animation: fadeIn 1.2s ease-out;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-        }
-        .message {
-            font-size: 1.3rem;
-            line-height: 1.9;
-            font-weight: 300;
-            color: #d1d5db;
-            animation: fadeIn 1.5s ease-out;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            margin-bottom: 2rem;
-        }
-        .future {
-            font-size: 1.2rem;
-            font-weight: 400;
-            color: #b91c1c;
-            animation: fadeIn 1.8s ease-out;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-        .popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            background: linear-gradient(145deg, #1a1a1a, #2d2d2d);
-            border: 2px solid #ff0000;
-            border-radius: 2rem;
-            padding: 3rem;
-            max-width: 500px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
-            animation: popIn 0.6s ease-out forwards;
-            animation-delay: 7s;
-            z-index: 1000;
-            backdrop-filter: blur(15px);
-        }
-        .popup-content h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(90deg, #ff0000, #b91c1c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 1.5rem;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-        }
-        .popup-content p {
-            font-size: 1.2rem;
-            color: #d1d5db;
-            margin-bottom: 2rem;
-            line-height: 1.8;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-        .popup-content a {
-            color: #ff0000;
-            font-weight: 600;
-            text-decoration: none;
-            position: relative;
-            transition: color 0.3s ease;
-        }
-        .popup-content a::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background-color: #b91c1c;
-            transform: scaleX(0);
-            transform-origin: bottom right;
-            transition: transform 0.4s ease;
-        }
-        .popup-content a:hover::after {
-            transform: scaleX(1);
-            transform-origin: bottom left;
-        }
-        .popup-content a:hover {
-            color: #b91c1c;
-        }
-        .close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 2rem;
-            color: #ff0000;
-            cursor: pointer;
-            transition: transform 0.3s ease, color 0.3s ease;
-        }
-        .close-btn:hover {
-            color: #b91c1c;
-            transform: scale(1.3) rotate(90deg);
-        }
-        .canvas-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.4;
-        }
-        .glow {
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(255, 0, 0, 0.4), transparent);
-            filter: blur(120px);
-            animation: pulse 5s infinite ease-in-out;
-            z-index: -1;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.6; }
-            50% { transform: scale(1.3); opacity: 0.9; }
-        }
-        @keyframes slideIn {
-            0% { opacity: 0; transform: translateY(-70px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-            0% { opacity: 0; transform: translateY(40px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes popIn {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            80% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Profesjonalna strona — Logowanie / Rejestracja</title>
+
+<!-- Google Font (zamień na Futura jeśli masz licencję; instrukcja poniżej) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg: #ffffff;
+    --text: #111827;
+    --muted: #6b7280;
+    --accent1: #4f46e5; /* fiolet */
+    --accent2: #3b82f6; /* niebieski */
+    --card-shadow: 0 6px 30px rgba(20,20,50,0.07);
+    --radius: 14px;
+    --glass: rgba(255,255,255,0.7);
+  }
+
+  /* Reset / podstawy */
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    background: linear-gradient(135deg, #183afa 0%, #cb5cff 100%);
+    background-image:
+    radial-gradient(circle at 20% 20%, rgba(79,70,229,0.06) 2px, transparent 4px),
+    radial-gradient(circle at 80% 80%, rgba(59,130,246,0.06) 2px, transparent 4px);
+    background-repeat: repeat;
+    background-size: 60px 60px;
+    color: var(--text);
+    margin:0;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: linear-gradient(180deg, #fbfdff 0%, #ffffff 60%);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    overflow-x:hidden;
+  }
+
+  /* -------- Header -------- */
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:60;
+    backdrop-filter: blur(6px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.55));
+    border-bottom: 1px solid rgba(20,20,50,0.04);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 36px;
+  }
+  .brand{
+    display:flex;
+    gap:14px;
+    align-items:center;
+  }
+  .logo {
+    width:46px;
+    height:46px;
+    border-radius:10px;
+    display:inline-grid;
+    place-items:center;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    color:white;
+    font-weight:800;
+    box-shadow: 0 6px 18px rgba(75,60,200,0.14);
+    transform:translateZ(0);
+  }
+  .brand h1{
+    margin:0;
+    font-size:1.05rem;
+    letter-spacing: -0.02em;
+  }
+  .nav-actions { display:flex; gap:12px; align-items:center; }
+
+  /* -------- Animated gradient ring button --------
+     idea: we use a pseudo-element with conic-gradient rotating,
+     masked so it becomes a ring. The ring is slightly blurred and moves continously.
+  */
+  .btn {
+    --padx:18px;
+    --pady:10px;
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:var(--pady) var(--padx);
+    border-radius:999px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,255,0.96));
+    border: 1px solid rgba(20,20,50,0.06);
+    cursor:pointer;
+    font-weight:600;
+    color:var(--accent1);
+    box-shadow: 0 6px 18px rgba(60,60,120,0.06);
+    overflow:visible;
+    transition: transform .25s cubic-bezier(.2,.9,.2,1), box-shadow .25s;
+    backdrop-filter: blur(2px);
+  }
+  .btn:active { transform: translateY(1px) scale(.995); }
+
+  /* shrink ring by default so it's subtle */
+  .btn:not(.glow)::before{ opacity:0; transform: scale(.85) rotate(0deg); }
+
+  /* bring ring on hover */
+  .btn:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 12px 38px rgba(70,50,180,0.12);
+  }
+  .btn:hover::before {
+  opacity: 1;
+  transform: scale(1.02); /* usuń rotate(20deg) */
+  }
+
+  @keyframes spin{
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* small primary style */
+  .btn.primary{
+    color:white;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    border: none;
+    box-shadow: 0 10px 30px rgba(75,60,200,0.18);
+  }
+  .btn.ghost{
+    background:transparent;
+    color:var(--accent1);
+    border:1px solid rgba(79,70,229,0.12);
+  }
+
+  /* -------- Layout main -------- */
+  .container{
+    max-width:1100px;
+    margin:36px auto;
+    padding:0 20px;
+  }
+
+  .hero{
+    display:grid;
+    grid-template-columns:1fr 420px;
+    gap:28px;
+    align-items:center;
+    margin-bottom:28px;
+  }
+  .hero-card{
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,255,0.98));
+    border-radius: var(--radius);
+    padding:28px;
+    box-shadow: var(--card-shadow);
+    border:1px solid rgba(20,20,50,0.03);
+  }
+  .hero h2{ margin:0 0 8px 0; font-size:1.9rem; }
+  .hero p{ margin:0 0 18px 0; color:var(--muted); }
+
+  /* feature cards grid */
+  .features{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:18px;
+    margin-top:18px;
+  }
+  .card{
+    background: white;
+    border-radius:12px;
+    padding:18px;
+    box-shadow: 0 8px 28px rgba(18,18,40,0.04);
+    transition: transform .32s cubic-bezier(.2,.9,.2,1), box-shadow .32s;
+    border:1px solid rgba(18,18,40,0.03);
+  }
+  .card:hover{ transform: translateY(-8px); box-shadow: 0 18px 46px rgba(18,18,80,0.08); }
+
+  .card h4{ margin:0 0 8px 0; }
+  .card p{ margin:0; color:var(--muted); font-size:0.95rem; }
+
+  /* right column: quick actions */
+  .side{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .metric{
+    background: linear-gradient(180deg, rgba(250,250,255,1), rgba(245,245,255,0.98));
+    padding:16px;
+    border-radius:12px;
+    box-shadow: var(--card-shadow);
+    border:1px solid rgba(18,18,40,0.03);
+  }
+  .metric h3{ margin:0; color:var(--accent1); }
+  .metric p{ margin:6px 0 0 0; color:var(--muted) }
+
+  /* tiny floating decorative shapes */
+  .float-shape{
+    position:absolute;
+    width:120px;height:120px;
+    background: radial-gradient(circle at 30% 30%, rgba(79,70,229,0.12), rgba(59,130,246,0.06));
+    filter: blur(22px);
+    border-radius:24px;
+    transform: translateZ(0);
+    pointer-events:none;
+    z-index:0;
+  }
+  .shape-1{ top:40px; left:-40px; }
+  .shape-2{ bottom:120px; right:-40px; width:180px;height:180px; border-radius:34px; }
+
+  /* -------- Modal (login/register) -------- */
+  .modal-backdrop{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background: rgba(10,12,25,0.45);
+    z-index:120;
+    backdrop-filter: blur(6px);
+    padding:20px;
+  }
+  .modal-backdrop.active{ display:flex; }
+
+  .modal-panel{
+    width:100%;
+    max-width:540px;
+    border-radius:16px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(250,250,255,0.98));
+    box-shadow: 0 18px 60px rgba(12,14,30,0.35);
+    padding:28px;
+    transform-origin:center;
+    animation: popIn .32s cubic-bezier(.2,.9,.2,1);
+    position:relative;
+    overflow:hidden;
+  }
+
+  @keyframes popIn {
+    from { transform: translateY(-10px) scale(.985); opacity:0; }
+    to   { transform: translateY(0) scale(1); opacity:1; }
+  }
+
+  .modal-grid{ display:grid; grid-template-columns:1fr 260px; gap:18px; align-items:center; }
+  .modal-panel h3{ margin:0 0 8px 0; color:var(--accent1); }
+  .input{
+    display:block;
+    width:100%;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid rgba(20,20,50,0.06);
+    background:rgba(250,250,255,0.98);
+    outline:none;
+    font-size:0.95rem;
+    margin-bottom:10px;
+    transition: box-shadow .18s, border-color .18s;
+  }
+  .input:focus{ border-color: rgba(79,70,229,0.35); box-shadow: 0 6px 24px rgba(75,60,200,0.06); }
+
+  .modal-side{
+    padding:18px;
+    border-radius:12px;
+    background: linear-gradient(180deg, rgba(79,70,229,0.04), rgba(59,130,246,0.02));
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    justify-content:center;
+  }
+  .close-btn{
+    position:absolute; right:12px; top:12px;
+    background:transparent; border:none; font-size:20px; cursor:pointer; color:var(--muted);
+  }
+
+  /* -------- Loader (full screen) -------- */
+  .loader-wrap{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,255,0.6));
+    z-index:200;
+    visibility:hidden; opacity:0; transition:opacity .24s;
+  }
+  .loader-wrap.show{ visibility:visible; opacity:1; }
+  .loader {
+    width:86px; height:86px; border-radius:50%; position:relative;
+    display:grid; place-items:center;
+  }
+  .loader::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background: conic-gradient(from 0deg, var(--accent2), var(--accent1), #8b5cf6, var(--accent2));
+    filter: blur(8px) saturate(140%);
+    animation: spin 2.2s linear infinite;
+    z-index:0;
+  }
+  .loader::after{
+    content:"";
+    width:60px; height:60px; border-radius:50%;
+    background: white; z-index:1; box-shadow: 0 8px 24px rgba(20,20,40,0.06);
+  }
+
+  /* responsive */
+  @media (max-width:980px){
+    .hero{ grid-template-columns: 1fr; }
+    .modal-grid{ grid-template-columns: 1fr; }
+    .features{ grid-template-columns: repeat(2,1fr) }
+  }
+  @media (max-width:620px){
+    .features{ grid-template-columns: 1fr }
+    .nav-actions{ gap:8px }
+  }
+
+  /* small helpers */
+  .muted{ color:var(--muted) }
+  .small{ font-size:0.9rem }
+
+  /* Ukryty kontener */
+.hidden {
+  display: none;
+}
+
+#success-message {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 9999;
+}
+
+#success-message .overlay {
+  position: absolute;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+}
+
+#success-message .message-box {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  animation: fadeInScale 0.5s ease forwards;
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+#success-message h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2.8rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, #007CF0, #FF4081);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+#success-message p {
+  margin: 0.2rem 0;
+  color: black;
+  font-size: 1rem;
+}
+
+#success-message #client-name {
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.progress-bar {
+  margin-top: 1.5rem;
+  width: 100%;
+  height: 6px;
+  background-color: #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress {
+  width: 0%;
+  height: 100%;
+  background-color: #007CF0;
+  transition: width 0.1s linear;
+}
+
+</style>
 </head>
 <body>
-    <canvas id="bgCanvas" class="canvas-bg"></canvas>
-    <div class="glow" style="top: 5%; left: 10%;"></div>
-    <div class="glow" style="bottom: 10%; right: 15%;"></div>
-    <div class="container">
-        <h1 class="title">Projekt Zamknięty</h1>
-        <h2 class="subtitle">Dziękujemy za Waszą pasję i wsparcie</h2>
-        <p class="message">
-            Z głębokim smutkiem informujemy o zamknięciu naszego projektu. Decyzja ta została podjęta z powodu niewystarczającego zainteresowania ze strony społeczności oraz braku możliwości czasowych na dalsze rozwijanie i utrzymywanie projektu na poziomie, który spełniałby nasze ambicje i Wasze oczekiwania. 
-            Jesteśmy niezmiernie wdzięczni każdemu, kto był z nami – Wasze opinie, zaangażowanie i entuzjazm były dla nas inspiracją na każdym kroku. 
-        </p>
-        <p class="future">
-            To nie jest definitywne pożegnanie. W przyszłości, gdy okoliczności na to pozwolą, możemy powrócić z nowymi pomysłami i jeszcze większą energią. Zachęcamy do śledzenia naszych kanałów, aby być na bieżąco z wszelkimi aktualizacjami. Dziękujemy za wszystko i do zobaczenia wkrótce!
-        </p>
+
+<!-- floating shapes -->
+<div class="float-shape shape-1" aria-hidden="true"></div>
+<div class="float-shape shape-2" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">DS</div>
+    <div>
+      <h1>Ds Studio</h1>
+      <div class="small muted">Fotografie • Nagrania • Grafiki • Montaż</div>
     </div>
-    <div class="popup" id="popup">
-        <span class="close-btn" onclick="closePopup()">✕</span>
-        <div class="popup-content">
-            <h2>Zajrzyj tu!</h2>
-            <p>
-                Nie przegap tego, co dla Ciebie przygotowujemy! Zajrzyj na <a href="https://dorson.site" target="_blank">dorson.site</a>, gdzie znajdziesz nasze najnowsze projekty, inspiracje i plany na przyszłość. Do zobaczenia tam!
-            </p>
+  </div>
+
+  <nav class="nav-actions" aria-label="Akcje">
+    <button class="btn ghost" id="demoBtn" title="Demo">Wypróbuj demo</button>
+    <button class="btn" id="loginOpen">Zaloguj</button>
+    <button class="btn primary" id="registerOpen">Zarejestruj Licencje</button>
+  </nav>
+</header>
+
+<main class="container" role="main">
+  <!-- hero -->
+  <section class="hero">
+    <div class="hero-card">
+      <h2>🎥 O mnie</h2>
+      <p>Jestem fotografem, kamerzystą, grafikiem i montażystą. Tworzę spójne i estetyczne materiały wizualne – od zdjęć i filmów, po grafikę i montaż. Łączę kreatywność z profesjonalnym podejściem, dopasowując projekty do potrzeb klienta.</p>
+
+      <div style="display:flex; gap:12px; margin-top:18px; flex-wrap:wrap;">
+        <button class="btn primary" onclick="showLoader()">Rozpocznij</button>
+        <button class="btn" onclick="scrollToFeatures()">Dowiedz się więcej</button>
+      </div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="metric">
+        <h3>10+</h3>
+        <p class="muted small">Zadowolonych Klientów</p>
+      </div>
+
+      <div class="metric">
+        <h3>99.9%</h3>
+        <p class="muted small">Dostępność usług</p>
+      </div>
+
+      <div class="metric">
+        <h3>Opinie</h3>
+        <p class="muted small">Same pozytywne opinie</p>
+      </div>
+    </aside>
+  </section>
+
+  <!-- features -->
+  <section id="features">
+    <div style="display:flex; justify-content:space-between; align-items:end; margin-bottom:12px;">
+      <h3 style="margin:0">Cechy</h3>
+      <div class="muted small">Gotowość Do Pracy • Nowe Techniki • Responsywność</div>
+    </div>
+
+    <div class="features" aria-hidden="false">
+      <article class="card">
+        <h4>🎯 Kreatywność</h4>
+        <p>Kreatywne podejście, świeże pomysły i dbałość o każdy detal.</p>
+      </article>
+
+      <article class="card">
+        <h4>🛠️ Wszechstronność</h4>
+        <p>Zdjęcia, filmy, grafika i montaż – wszystko w jednym miejscu.</p>
+      </article>
+
+      <article class="card">
+        <h4>✅ Profesjonalizm</h4>
+        <p>Estetyka, jakość i pełne zaangażowanie w każdy realizowany projekt.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="opinions" style="margin-top:48px;">
+  <h3>Opinie klientów</h3>
+  <div class="features" style="grid-template-columns: 1fr 1fr 1fr;">
+    <article class="card">
+      <h4>Daniel</h4>
+      <p>Świetna współpraca, profesjonalizm i szybka realizacja.</p>
+    </article>
+    <article class="card">
+      <h4>Jakub</h4>
+      <p>Polecam z całego serca – jakość usług na najwyższym poziomie.</p>
+    </article>
+    <article class="card">
+      <h4>Marcin</h4>
+      <p>Zawsze kreatywne podejście i fantastyczne efekty pracy.</p>
+    </article>
+  </div>
+</section>
+
+
+  <!-- footer sample -->
+  <footer style="margin-top:36px; padding:18px; text-align:center; color:var(--muted); border-top:1px solid rgba(20,20,50,0.03);">
+    © <span id="year"></span> DsSite — Strona Informacyjna. | Wszelkie prawa zastrzeżone.
+  </footer>
+</main>
+
+<!-- Modal (login/register) -->
+<div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-panel" role="document" aria-labelledby="modalTitle">
+    <button class="close-btn" id="modalClose" aria-label="Zamknij">&times;</button>
+
+    <div class="modal-grid">
+      <div>
+        <h3 id="modalTitle">Zaloguj się</h3>
+        <p class="muted">Wpisz swoje dane, aby uzyskać dostęp.</p>
+
+        <form id="authForm" onsubmit="return handleAuth(event)" novalidate>
+          <input class="input" id="username" type="text" placeholder="Numer Licencji" required />
+          <input class="input" id="password" type="password" placeholder="Hasło" required minlength="6" />
+          <div style="display:flex; gap:10px; align-items:center; margin-top:8px;">
+            <button class="btn primary" type="submit">Kontynuuj</button>
+            <button class="btn ghost" type="button" id="switchToRegister">Stwórz konto</button>
+          </div>
+        </form>
+
+        <div style="margin-top:12px; font-size:0.9rem; color:var(--muted)">
+          <label style="display:flex; gap:8px; align-items:center;">
+            <input type="checkbox" id="remember" /> Zapamiętaj mnie
+          </label>
         </div>
+      </div>
+
+      <aside class="modal-side">
+        <div style="font-weight:700">Szybkie i bezpieczne</div>
+        <div class="muted small">Dostęp do konta w kilka sekund. Korzystaj z 2FA, aby zwiększyć bezpieczeństwo.</div>
+        <div style="margin-top:12px">
+          <button class="btn" id="demoLogin">Zaloguj jako demo</button>
+        </div>
+      </aside>
     </div>
+  </div>
+</div>
 
-    <script>
-        function closePopup() {
-            document.getElementById('popup').style.display = 'none';
-        }
+<div id="betaAlert" style="
+  position: fixed;
+  top: 870px;
+  right: 20px;
+  background: var(--accent2);
+  color: white;
+  padding: 14px 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 17, 255, 0.3);
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  max-width: 320px;
+  z-index: 150;
+">
+  ⚠️ Strona jest w trybie BETA ⚠️ Kliknij aby alert znikł
+</div>
 
-        // Canvas background animation with particles
-        const canvas = document.getElementById('bgCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
 
-        const particles = [];
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 5 + 1;
-                this.speedX = Math.random() * 0.5 - 0.25;
-                this.speedY = Math.random() * 0.5 - 0.25;
-                this.color = `rgba(255, 0, 0, ${Math.random() * 0.6 + 0.3})`;
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if (this.size > 0.2) this.size -= 0.01;
-                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-            }
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
+<!-- Kontener powiadomienia -->
+<div id="success-message" class="hidden">
+  <div class="overlay"></div>
+  <div class="message-box">
+    <h1 id="main-text">Zalogowany</h1>
+    <p id="sub-text">Zostałeś zalogowany pomyślnie.</p>
+    <p id="client-name"></p>
+    <div class="progress-bar">
+      <div class="progress"></div>
+    </div>
+  </div>
+</div>
 
-        function init() {
-            for (let i = 0; i < 150; i++) {
-                particles.push(new Particle());
-            }
-        }
 
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach((particle, index) => {
-                particle.update();
-                particle.draw();
-                if (particle.size <= 0.2) {
-                    particles.splice(index, 1);
-                    particles.push(new Particle());
-                }
-            });
-            requestAnimationFrame(animate);
-        }
+<!-- Loader -->
+<div class="loader-wrap" id="loader">
+  <div class="loader" role="status" aria-label="Ładowanie"></div>
+</div>
 
-        init();
-        animate();
+<script>
+  // small helpers
+  document.getElementById('year').textContent = new Date().getFullYear();
 
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-    </script>
+  // modal logic
+  const modal = document.getElementById('modal');
+  const loginOpen = document.getElementById('loginOpen');
+  const registerOpen = document.getElementById('registerOpen');
+  const modalClose = document.getElementById('modalClose');
+  const switchToRegister = document.getElementById('switchToRegister');
+  const modalTitle = document.getElementById('modalTitle');
+  const demoLogin = document.getElementById('demoLogin');
+
+  function openModal(mode = 'login'){
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden','false');
+    if(mode === 'register'){
+      modalTitle.textContent = 'Zarejestruj Licencje';
+      switchToRegister.textContent = 'Zaloguj';
+      switchToRegister.onclick = ()=> openModal('login');
+    } else {
+      modalTitle.textContent = 'Zaloguj się';
+      switchToRegister.textContent = 'Stwórz konto';
+      switchToRegister.onclick = ()=> openModal('register');
+    }
+  }
+
+  function closeModal(){
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden','true');
+  }
+
+  loginOpen.addEventListener('click', ()=> openModal('login'));
+  registerOpen.addEventListener('click', ()=> openModal('register'));
+  modalClose.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e)=> { if(e.target === modal) closeModal(); });
+
+  // demo login
+  demoLogin.addEventListener('click', ()=> {
+    document.getElementById('username').value = 'demo@prosite.test';
+    document.getElementById('password').value = 'demopass';
+    // visual flash
+    const btn = document.querySelector('#modal .btn.primary');
+    btn.animate([{transform:'scale(1)'},{transform:'scale(1.03)'},{transform:'scale(1)'}], {duration:420});
+  });
+
+  // fake auth submit
+  function handleAuth(e){
+    e.preventDefault();
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value.trim();
+    if(!user || pass.length < 6){
+      alert('Proszę podać poprawne dane (hasło min. 6 znaków).');
+      return false;
+    }
+    // show loader then "success"
+    showLoader(true);
+    setTimeout(()=> {
+      hideLoader();
+      closeModal();
+      // tiny success toast
+      showSuccessMessage("login", "")
+    }, 1200);
+    return false;
+  }
+
+  // loader
+  const loader = document.getElementById('loader');
+  function showLoader(auto=false){
+    loader.classList.add('show');
+    if(auto){
+      setTimeout(()=> loader.classList.remove('show'), 1600);
+    }
+  }
+  function hideLoader(){ loader.classList.remove('show'); }
+
+  // scroll to features
+  function scrollToFeatures(){
+    document.getElementById('features').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  // demo button (small animation)
+  document.getElementById('demoBtn').addEventListener('click', ()=>{
+    const b = document.getElementById('demoBtn');
+    b.animate([{transform:'translateY(0)'},{transform:'translateY(-6px)'},{transform:'translateY(0)'}], {duration:420});
+    openModal('register');
+  });
+
+  // small toast implementation
+  function showToast(msg, timeout=2200){
+    const t = document.createElement('div');
+    t.textContent = msg;
+    Object.assign(t.style, {
+      position:'fixed', right:'18px', bottom:'18px', padding:'12px 16px',
+      background:'linear-gradient(90deg,var(--accent1),var(--accent2))',
+      color:'white', borderRadius:'10px', boxShadow:'0 8px 30px rgba(80,60,220,0.18)',
+      zIndex:400, fontWeight:600
+    });
+    document.body.appendChild(t);
+    setTimeout(()=> t.style.opacity='0', timeout-400);
+    setTimeout(()=> t.remove(), timeout);
+  }
+
+  // accessibility: escape closes modal
+  window.addEventListener('keydown', (e)=> {
+    if(e.key === 'Escape') closeModal();
+  });
+
+  // Optionally: if you have Futura licensed, uncomment and adjust this @font-face block and change font-family in body
+  /*
+  @font-face {
+    font-family: 'FuturaCustom';
+    src: url('/fonts/FuturaPT-Book.woff2') format('woff2');
+    font-weight: 300 800;
+    font-style: normal;
+    font-display: swap;
+  }
+  body { font-family: 'FuturaCustom', Inter, system-ui, -apple-system; }
+  */
+
+ const betaAlert = document.getElementById('betaAlert');
+
+setTimeout(() => {
+  betaAlert.style.opacity = '1';
+  betaAlert.style.pointerEvents = 'auto';
+}, 500);
+
+betaAlert.addEventListener('click', () => {
+  betaAlert.style.opacity = '0';
+  betaAlert.style.pointerEvents = 'none';
+});
+
+function showSuccessMessage(type, clientName = "") {
+  const container = document.getElementById("success-message");
+  const mainText = document.getElementById("main-text");
+  const subText = document.getElementById("sub-text");
+  const clientNameEl = document.getElementById("client-name");
+  const progressBar = container.querySelector(".progress");
+
+  // Ustaw teksty wg typu
+  if(type === "login") {
+    mainText.textContent = "Zalogowany";
+    subText.textContent = "Zostałeś zalogowany pomyślnie.";
+  } else if(type === "register") {
+    mainText.textContent = "Zarejestrowany";
+    subText.textContent = "Zostałeś pomyślnie zarejestrowany.";
+  } else {
+    mainText.textContent = "";
+    subText.textContent = "";
+  }
+
+  // Nazwa klienta albo ukryj
+  if(clientName) {
+    clientNameEl.textContent = clientName;
+    clientNameEl.style.display = "block";
+  } else {
+    clientNameEl.style.display = "none";
+  }
+
+  container.classList.remove("hidden");
+  progressBar.style.width = "0%";
+
+  let startTime = null;
+  const duration = 5000; // 5 sekund
+
+  function animateProgress(timestamp) {
+    if(!startTime) startTime = timestamp;
+    const elapsed = timestamp - startTime;
+    const progress = Math.min((elapsed / duration) * 100, 100);
+    progressBar.style.width = progress + "%";
+
+    if(elapsed < duration) {
+      requestAnimationFrame(animateProgress);
+    } else {
+      container.classList.add("hidden");
+    }
+  }
+
+  requestAnimationFrame(animateProgress);
+}
+
+
+</script>
 </body>
 </html>
